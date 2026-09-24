@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* Канонический источник design tokens проекта. Не дублировать
+   значения здесь — см. ../../design/tokens.css и PROJECT_CONTEXT.md PD-19. */
+@import "../../design/tokens.css";
+
+:root {
+  /* Токен --font из tokens.css задаёт стек с литералом 'Inter' —
+     здесь он маршрутизируется через реально загруженный next/font
+     переменной шрифт, без изменения канонического файла. */
+  --font: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont,
+          'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  font-family: var(--font);
+  background: var(--color-surface-page);
+  color: var(--color-text-primary);
+}
