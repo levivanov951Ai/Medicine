@@ -164,11 +164,149 @@
 
   /* ---------- Поверхности ---------- */
 
-  --color-surface-page:  var(--surface);    /* фон страницы и секций */
+  --color-surface-page:  var(--surface);    /* подкрашенные секции (фон самой страницы — --color-bg-page) */
   --color-surface-card:  var(--white);      /* карточки, поля ввода */
   --color-surface-hover: var(--blue-50);    /* hover-подложка */
   --color-surface-info:  var(--blue-100);   /* info-заливка, выбранный чип */
   --color-surface-promo: var(--pink-100);   /* метки акций */
+}
+
+
+/* ============================================================
+   СЛОЙ 2b — SEMANTIC TOKENS КОМПОНЕНТОВ
+   Добавлены 2026-09-24 при реализации Homepage.
+   Все значения — из финального Design v1 (Design-System.dc.html,
+   Homepage-Desktop/Mobile.dc.html). Примитивы не изменялись.
+   Литералы (не var()) — только значения, которые есть в макетах,
+   но отсутствуют в базовой палитре; источник указан рядом.
+   ============================================================ */
+
+:root {
+
+  /* ---------- Фон страницы ---------- */
+
+  /* Основной фон страницы в макетах — белый; серым (--color-surface-page)
+     залиты только отдельные секции. */
+  --color-bg-page: var(--white);
+
+  /* ---------- Акцентный текст (eyebrow-подписи секций) ---------- */
+
+  /* На белом фоне. 4.73. */
+  --color-text-accent: var(--blue-600);
+  /* На подкрашенном фоне — правило A. 6.09–6.61. */
+  --color-text-accent-on-tinted: var(--blue-700);
+
+  /* ---------- Цена ---------- */
+
+  /* Цена со скидкой. 5.68 на белом. */
+  --color-text-price-discount: var(--pink-700);
+
+  /* Зачёркнутая старая цена и подпись заглушки карты используют
+     существующий --color-text-secondary (7.13 на белом, 6.76 на --surface).
+     Отдельный «muted»-токен удалён 2026-09-25 — он не проходил 4.5:1. */
+
+  /* ---------- Акцентные ссылки ---------- */
+
+  /* «Все услуги и цены», «Подробнее», телефон в шапке — в Design v1
+     они blue-700 на любом фоне. 6.09–6.97. */
+  --color-text-link-strong: var(--blue-700);
+
+  /* ---------- Навигация ---------- */
+
+  --color-nav-active-text:      var(--blue-700);  /* 6.97 на белом */
+  --color-nav-active-indicator: var(--blue-600);  /* подчёркивание 2px */
+
+  /* ---------- Иконки ---------- */
+
+  --color-icon-accent: var(--blue-600);   /* иконка поиска, иконка «Войти». 4.73 */
+  --color-icon-strong: var(--blue-700);   /* галочки, иконки контактов. 6.97 */
+  --color-icon-muted:  var(--ink-400);    /* шевроны меню, очистка поиска. 3.01 — порог 3.0 */
+  --color-icon-plate-bg: var(--blue-50);  /* плашка под иконкой в строках и аватарах */
+  --color-icon-plate-fg: var(--blue-700);
+
+  /* ---------- Кнопки: primary ---------- */
+
+  --color-cta-bg-hover:   var(--pink-800);   /* белый текст: 7.20 */
+  --color-cta-bg-pressed: var(--pink-900);   /* белый текст: 9.04 */
+
+  /* ---------- Кнопки: secondary ---------- */
+
+  --color-secondary-fg:             var(--blue-600);  /* 4.73 на белом */
+  --color-secondary-border:         var(--blue-600);
+  --color-secondary-fg-active:      var(--blue-700);  /* hover / pressed */
+  --color-secondary-bg-hover:       var(--blue-50);   /* текст blue-700: 6.56 */
+  --color-secondary-bg-pressed:     var(--blue-100);  /* текст blue-700: 6.09 */
+  --color-secondary-border-pressed: var(--blue-700);
+
+  /* ---------- Кнопки: ghost ---------- */
+
+  --color-ghost-bg-hover:   var(--surface);   /* текст blue-700: 6.61 */
+  --color-ghost-bg-pressed: var(--line-200);  /* текст blue-700: 5.76 */
+
+  /* ---------- Кнопки: destructive ---------- */
+
+  --color-destructive-bg:         var(--error);       /* белый текст: 5.14 */
+  --color-destructive-bg-hover:   var(--error-dark);  /* белый текст: 6.63 */
+  /* Литерал из Design-System.dc.html (Button / Destructive / Pressed). 8.47 */
+  --color-destructive-bg-pressed: #8C2A2A;
+
+  /* ---------- Disabled (WCAG не регулирует) ---------- */
+
+  --color-disabled-bg:     var(--surface);
+  --color-disabled-border: var(--line-200);
+
+  /* ---------- Поля ввода ---------- */
+
+  /* Мягкий ореол вокруг поля в фокусе — декоративный, дополняет
+     --color-focus-ring, а не заменяет его. */
+  --color-focus-halo:   var(--blue-100);
+  --color-border-error: var(--error);
+
+  /* ---------- Статусные подложки ---------- */
+
+  /* Литерал из Design-System.dc.html (Badge «Готово»).
+     success-text на нём: 4.72. */
+  --color-surface-success: #E4F5EC;
+  /* Литерал из Design-System.dc.html (Badge «Скоро», Error State).
+     warning-text на нём: 4.77, ink-900: 15.49, ink-600: 6.33. */
+  --color-surface-warning: #FBF0DF;
+  /* Литерал из Design-System.dc.html (Error State, граница). Декоративная. */
+  --color-border-warning:  #F2DDB8;
+
+  /* ---------- Бейджи ---------- */
+
+  --color-badge-info-fg:  var(--blue-700);  /* на blue-100: 6.09 */
+  --color-badge-promo-fg: var(--pink-700);  /* на pink-100: 4.86 */
+
+  /* ---------- Акцентные подложки блоков ---------- */
+
+  /* Карточка акции: ink-900 16.22, ink-600 6.62, ссылка blue-700 6.48. */
+  --color-surface-promo-card: var(--pink-50);
+  --color-border-promo:       var(--pink-100);
+  /* Баннер «Комплексные программы»: ink-600 6.70. */
+  --color-surface-accent:     var(--blue-50);
+  --color-border-accent:      var(--blue-100);
+
+  /* ---------- Заглушки фото ---------- */
+
+  --color-placeholder-media-from: var(--blue-50);   /* начало градиента */
+  --color-placeholder-media-icon: var(--blue-100);  /* декоративная иконка */
+  /* Подложка метки «Фото врача» — полупрозрачный белый из макета. */
+  --color-placeholder-media-badge-bg: rgb(255 255 255 / 0.9);
+
+  /* ---------- Скелетон загрузки ---------- */
+
+  --color-skeleton: var(--line-200);
+
+  /* ---------- Инверсная зона (подвал) ---------- */
+
+  --color-surface-inverse:        var(--ink-900);
+  --color-text-on-inverse:        var(--white);    /* 17.46 */
+  /* Литерал из Homepage-Desktop.dc.html (текст и ссылки подвала). 9.75 */
+  --color-text-on-inverse-secondary: #B9C3CA;
+  --color-text-on-inverse-tertiary:  var(--ink-400);  /* © и правовые ссылки. 5.80 */
+  /* Литерал из Homepage-Desktop.dc.html (разделители подвала). Декоративный. */
+  --color-border-on-inverse: #24333D;
 }
 
 
@@ -238,9 +376,10 @@
 
 
 /* ============================================================
-   Незадокументированное значение из макетов:
-   #B9C3CA — placeholder-блоки (заглушки фото врачей, карта).
-   Токеном не объявлено. Декоративная заглушка, не текст и не
-   элемент управления — WCAG не регулирует.
-   При вёрстке решить: завести токен или заменить на --ink-400.
+   Исправление от 2026-09-24 (реализация Homepage):
+   #B9C3CA ранее ошибочно описывался здесь как цвет placeholder-
+   блоков. Фактически это цвет ТЕКСТА подвала на тёмном фоне
+   (13 вхождений на Homepage-Desktop, все в подвале).
+   Теперь объявлен как --color-text-on-inverse-secondary.
+   Контраст на --ink-900: 9.75 — проходит.
    ============================================================ */

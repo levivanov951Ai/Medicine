@@ -12,18 +12,83 @@
           'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 html {
   height: 100%;
+  -webkit-text-size-adjust: 100%;
+  /* Как в Design v1: где высота строки не задана явно — normal.
+     Tailwind по умолчанию ставит 1.5, это смещало вёрстку относительно макета. */
+  line-height: normal;
+  /* Липкая шапка не должна перекрывать цель якорной ссылки. */
+  scroll-padding-top: 72px;
+}
+
+@media (min-width: 1280px) {
+  html {
+    scroll-padding-top: 88px;
+  }
 }
 
 body {
   min-height: 100%;
   margin: 0;
   font-family: var(--font);
-  background: var(--color-surface-page);
+  background: var(--color-bg-page);
   color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Видимый фокус: контур 2px (Design System, раздел «Фокус»).
+   Цвет — --color-focus-ring (исправление D, CONTRAST_AUDIT.md). */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+@layer components {
+  /* Расширяет область нажатия до 44×44, не меняя визуальный размер.
+     Для элементов, которые в Design v1 меньше 44px: кнопки 36px,
+     кнопка меню 40px, чипы. Слой невидим и не влияет на раскладку. */
+  .touch-target {
+    position: relative;
+  }
+
+  .touch-target::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
+  /* Горизонтальные ленты карточек на mobile: заходят под поля экрана,
+     как в Homepage-Mobile (margin 0 -16px; padding 0 16px). */
+  .scroll-row {
+    /* relative обязателен: иначе абсолютно позиционированные элементы внутри
+       (подписи sr-only для скринридеров) не обрезаются лентой и растягивают
+       страницу по горизонтали. */
+    position: relative;
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
