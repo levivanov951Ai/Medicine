@@ -1,10 +1,10 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
 
-/** responsive — 48px на mobile, 56px с 768px (первый экран главной). */
+/** responsive — 48px на mobile, 56px с 768px (первый экран главной, шапки каталогов). */
 type SearchSize = "md" | "lg" | "responsive";
 
 interface SearchProps {
@@ -15,6 +15,15 @@ interface SearchProps {
   label: string;
   size?: SearchSize;
   defaultValue?: string;
+  /**
+   * Управляемый режим (каталоги): список фильтруется по мере ввода,
+   * форма не перезагружает страницу. Без JavaScript форма по-прежнему
+   * отправляется обычным GET-запросом.
+   */
+  value?: string;
+  onValueChange?: (value: string) => void;
+  /** Дополнительные параметры формы — например, выбранное направление. */
+  hiddenFields?: Record<string, string | undefined>;
   className?: string;
 }
 
@@ -26,16 +35,44 @@ const heights: Record<SearchSize, string> = {
 
 /**
  * Поле поиска Design v1. Отправляется по Enter обычной формой —
- * работает и без JavaScript. Подсказки (выпадающий список из Design System)
- * появятся вместе с каталогами.
+ * работает и без JavaScript.
  */
-export function Search({ action, placeholder, label, size = "md", defaultValue = "", className }: SearchProps) {
+export function Search({
+  action,
+  placeholder,
+  label,
+  size = "md",
+  defaultValue = "",
+  value: controlledValue,
+  onValueChange,
+  hiddenFields,
+  className,
+}: SearchProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [value, setValue] = useState(defaultValue);
+  const [ownValue, setOwnValue] = useState(defaultValue);
+  const isControlled = onValueChange !== undefined;
+  const value = isControlled ? (controlledValue ?? "") : ownValue;
+
+  const setValue = (next: string) => {
+    if (isControlled) onValueChange(next);
+    else setOwnValue(next);
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    // Результаты уже на экране — перезагрузка не нужна; прячем клавиатуру на mobile.
+    if (isControlled) {
+      event.preventDefault();
+      inputRef.current?.blur();
+    }
+  };
 
   return (
-    <form role="search" action={action} method="get" className={cn("w-full", className)}>
+    <form role="search" action={action} method="get" onSubmit={handleSubmit} className={cn("w-full", className)}>
+      {hiddenFields &&
+        Object.entries(hiddenFields).map(([name, fieldValue]) =>
+          fieldValue ? <input key={name} type="hidden" name={name} value={fieldValue} /> : null,
+        )}
       <div
         className={cn(
           "flex w-full items-center gap-2.5 rounded-[14px] border-[1.5px] px-[18px]",

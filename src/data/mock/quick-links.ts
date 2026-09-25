@@ -6,8 +6,7 @@
 import { routes } from "@/lib/routes";
 import type { QuickLink } from "@/types/catalog";
 
-const servicesIn = (category: string) =>
-  `${routes.services}?category=${encodeURIComponent(category)}`;
+const servicesIn = (category: string) => routes.servicesCatalog({ category });
 
 export const mockQuickLinks: QuickLink[] = [
   { id: "therapy", label: "Терапия", icon: "stethoscope", href: servicesIn("therapy") },

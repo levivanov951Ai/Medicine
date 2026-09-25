@@ -11,7 +11,8 @@ import { Icon } from "./Icon";
 
 interface EmptyStateProps {
   title: string;
-  description?: string;
+  /** Строка или разметка — например, разные тексты для desktop и mobile. */
+  description?: ReactNode;
   icon?: IconName;
   action?: ReactNode;
   /** Тег заголовка: h1 — когда блок единственное содержимое страницы (404). */

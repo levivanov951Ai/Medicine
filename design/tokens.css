@@ -238,6 +238,14 @@
   --color-secondary-bg-pressed:     var(--blue-100);  /* текст blue-700: 6.09 */
   --color-secondary-border-pressed: var(--blue-700);
 
+  /* ---------- Кнопка-переключатель «Добавить» → «Добавлено» ---------- */
+
+  /* Выбранное состояние (Analyses-*.dc.html): заливка blue-600,
+     белый текст и галочка — 4.73. Hover — blue-700: 6.97. */
+  --color-toggle-selected-bg:       var(--blue-600);
+  --color-toggle-selected-bg-hover: var(--blue-700);
+  --color-toggle-selected-fg:       var(--white);
+
   /* ---------- Кнопки: ghost ---------- */
 
   --color-ghost-bg-hover:   var(--surface);   /* текст blue-700: 6.61 */

@@ -18,26 +18,27 @@ _Обновлено: 2026-09-25_
 - Responsive-проверка
 - Accessibility-проверка
 - lint / typecheck / build
+- Services Catalog (`/services`, поиск `?q=`, направления `?category=`)
+- Service Details (`/services/[id]`)
+- Doctors Catalog (`/doctors`)
+- Doctor Details (`/doctors/[id]`)
+- Analyses Catalog (`/lab`)
+- Analysis Details (`/lab/[id]`)
+- Selected Analyses (`/lab/selected`, выбор сохраняется в браузере)
 
 ## Текущее состояние
 
-Homepage полностью реализована и работает.
+Главная и публичный каталог реализованы и работают на desktop и mobile.
+Решения и открытые вопросы этапа — `docs/DEVELOPER_HANDOFF.md`, раздел 13.
 
-## Следующий этап — публичный каталог
+## Следующий этап
 
-- Services catalog
-- Service details
-- Doctors catalog
-- Doctor details
-- Analyses catalog
-- Analysis details
-- Selected analyses
+- Booking flow: запись к врачу (`/booking`) и запись на анализы (`/booking/lab`)
 
 ## Позже
 
-- Booking
 - Auth
 - Account
-- Вторичные страницы
+- Комплексы анализов (`/lab/packages`), акции, вторичные страницы
 - Интеграция с CRM
 - Production-тестирование и деплой

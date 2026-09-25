@@ -6,6 +6,7 @@ import type { Service } from "@/types/catalog";
 
 interface ServiceCardProps {
   service: Service;
+  categoryLabel: string;
 }
 
 /**
@@ -17,10 +18,10 @@ interface ServiceCardProps {
  * «Записаться» передаёт услугу в мастер записи: он стартует
  * с шага «Врач» (PD-03).
  */
-export function ServiceCard({ service }: ServiceCardProps) {
+export function ServiceCard({ service, categoryLabel }: ServiceCardProps) {
   return (
     <article className="flex h-full flex-col gap-3.5 rounded-(--radius-l) border border-(--color-border-decorative) bg-(--color-surface-card) p-[22px] shadow-(--shadow-m) md:gap-4 md:p-7">
-      <ChipLabel className="self-start">{service.categoryLabel}</ChipLabel>
+      <ChipLabel className="self-start">{categoryLabel}</ChipLabel>
 
       <h3 className="min-h-[44px] text-[16px] leading-[22px] font-bold text-(--color-text-primary) md:min-h-[50px] md:text-[18px] md:leading-[25px]">
         {service.title}

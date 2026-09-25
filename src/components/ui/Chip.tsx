@@ -4,9 +4,10 @@ import { cn } from "@/lib/cn";
 import type { IconName } from "@/types/icon";
 import { Icon } from "./Icon";
 
-const base =
-  "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-(--radius-pill) px-3.5 " +
-  "text-[14px] font-semibold border-[1.5px]";
+const shape = "inline-flex items-center gap-1.5 rounded-(--radius-pill) font-semibold border-[1.5px]";
+const base = `${shape} h-9 whitespace-nowrap px-3.5 text-[14px]`;
+/** Метка, которая может переноситься: длинная специализация в узкой карточке. */
+const multilineBase = `${shape} min-h-8 px-3 py-1 text-[13px] md:min-h-9 md:text-[14px]`;
 
 /** Chip из Design-System.dc.html: по умолчанию и выбранный (aria-pressed). */
 const idle =
@@ -32,9 +33,14 @@ function ChipContent({ icon, children }: ChipContentProps) {
  * Неинтерактивная метка в форме чипа (например, направление на карточке услуги).
  * Граница декоративная — текст сам опознаёт элемент.
  */
-export function ChipLabel({ icon, children, className }: ChipContentProps & { className?: string }) {
+export function ChipLabel({
+  icon,
+  children,
+  multiline = false,
+  className,
+}: ChipContentProps & { multiline?: boolean; className?: string }) {
   return (
-    <span className={cn(base, idle, className)}>
+    <span className={cn(multiline ? multilineBase : base, idle, className)}>
       <ChipContent icon={icon}>{children}</ChipContent>
     </span>
   );

@@ -1,12 +1,6 @@
-import type {
-  Analysis,
-  BookingPreview,
-  Doctor,
-  Promotion,
-  QuickLink,
-  Service,
-} from "@/types/catalog";
+import type { Analysis, BookingPreview, Doctor, Promotion, QuickLink } from "@/types/catalog";
 import type { ClinicInfo } from "@/types/clinic";
+import { getPopularServices, type ServiceListItem } from "./services-catalog";
 import { dataSource } from "./source";
 
 /** Сколько элементов показывает главная на desktop (Design v1). */
@@ -19,7 +13,7 @@ export const HOMEPAGE_LIMITS = {
 export interface HomepageData {
   clinic: ClinicInfo;
   quickLinks: QuickLink[];
-  popularServices: Service[];
+  popularServices: ServiceListItem[];
   featuredAnalyses: Analysis[];
   featuredDoctors: Doctor[];
   promotions: Promotion[];
@@ -28,11 +22,11 @@ export interface HomepageData {
 
 /** Все данные главной одним запросом — источники опрашиваются параллельно. */
 export async function getHomepageData(): Promise<HomepageData> {
-  const [clinic, quickLinks, services, analyses, doctors, promotions, bookingPreview] =
+  const [clinic, quickLinks, popularServices, analyses, doctors, promotions, bookingPreview] =
     await Promise.all([
       dataSource.getClinicInfo(),
       dataSource.getQuickLinks(),
-      dataSource.getServices(),
+      getPopularServices(),
       dataSource.getAnalyses(),
       dataSource.getDoctors(),
       dataSource.getPromotions(),
@@ -42,7 +36,7 @@ export async function getHomepageData(): Promise<HomepageData> {
   return {
     clinic,
     quickLinks,
-    popularServices: services.slice(0, HOMEPAGE_LIMITS.services),
+    popularServices: popularServices.slice(0, HOMEPAGE_LIMITS.services),
     featuredAnalyses: analyses.slice(0, HOMEPAGE_LIMITS.analyses),
     featuredDoctors: doctors.slice(0, HOMEPAGE_LIMITS.doctors),
     promotions,
