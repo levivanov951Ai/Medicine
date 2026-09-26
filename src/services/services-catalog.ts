@@ -1,4 +1,5 @@
-import type { Category, Doctor, Price, Service } from "@/types/catalog";
+import type { Category, DoctorWithSlot, Price, Service } from "@/types/catalog";
+import { withNextSlots } from "./availability";
 import { dataSource } from "./source";
 
 /** Услуга с подписью направления — строка каталога, карточка главной. */
@@ -15,7 +16,7 @@ export interface ServicesCatalogData {
 
 /** Врач, который ведёт услугу, и его цена за неё. */
 export interface ServiceDoctor {
-  doctor: Doctor;
+  doctor: DoctorWithSlot;
   price: Price;
 }
 
@@ -74,7 +75,7 @@ export async function getServicePage(id: string): Promise<ServicePageData | null
     dataSource.getDoctors(),
   ]);
 
-  const serviceDoctors = doctors.flatMap((doctor) => {
+  const serviceDoctors = (await withNextSlots(doctors)).flatMap((doctor) => {
     const offer = doctor.services.find((item) => item.serviceId === service.id);
     return offer ? [{ doctor, price: offer.price }] : [];
   });

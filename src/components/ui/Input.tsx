@@ -27,6 +27,11 @@ export function Input({ label, hint, error, disabled, id, className, ...rest }: 
         )}
       >
         {label}
+        {rest.required && (
+          <span aria-hidden="true" className="text-(--color-required-mark)">
+            {" "}*
+          </span>
+        )}
       </label>
       <input
         {...rest}

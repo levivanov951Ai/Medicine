@@ -38,12 +38,21 @@ export const routes = {
   legal: (slug: string) => `/legal/${encodeURIComponent(slug)}`,
 
   booking: "/booking",
-  bookingWithService: (serviceId: string) =>
-    `/booking?service=${encodeURIComponent(serviceId)}`,
-  bookingWithDoctor: (doctorId: string) =>
-    `/booking?doctor=${encodeURIComponent(doctorId)}`,
+  bookingWithService: (serviceId: string) => bookingHref({ service: serviceId }),
+  bookingWithDoctor: (doctorId: string) => bookingHref({ doctor: doctorId }),
   bookingWithServiceAndDoctor: (serviceId: string, doctorId: string) =>
-    `/booking?service=${encodeURIComponent(serviceId)}&doctor=${encodeURIComponent(doctorId)}`,
+    bookingHref({ service: serviceId, doctor: doctorId }),
+  /** Быстрый слот со страницы врача: врач и время известны, услуга — если выбрана. */
+  bookingWithSlot: (doctorId: string, date: string, time: string, serviceId?: string) =>
+    bookingHref({ service: serviceId, doctor: doctorId, date, time }),
   /** Выбранные анализы берутся из сохранённого выбора, в адрес не передаются. */
   bookingLab: "/booking/lab",
+  /** Личный кабинет — пока заглушка (следующий этап). */
+  account: "/account",
 } as const;
+
+function bookingHref(params: Record<string, string | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
+  return `/booking?${search.toString()}`;
+}

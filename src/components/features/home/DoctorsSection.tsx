@@ -2,10 +2,10 @@ import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { DoctorCard } from "@/components/features/doctors/DoctorCard";
 import { routes } from "@/lib/routes";
-import type { Doctor } from "@/types/catalog";
+import type { DoctorWithSlot } from "@/types/catalog";
 
 interface DoctorsSectionProps {
-  doctors: Doctor[];
+  doctors: DoctorWithSlot[];
 }
 
 /**

@@ -8,7 +8,8 @@ import { routes } from "@/lib/routes";
 import type { BookingPreview } from "@/types/catalog";
 
 interface HeroSectionProps {
-  preview: BookingPreview;
+  /** null — свободного времени нет, иллюстрация без превью записи. */
+  preview: BookingPreview | null;
 }
 
 /**
@@ -77,10 +78,12 @@ export function HeroSection({ preview }: HeroSectionProps) {
                 iconSize={88}
                 className="h-[480px] w-[520px] rounded-[20px]"
               />
-              <BookingPreviewCard
-                preview={preview}
-                className="absolute bottom-0 -left-8 w-[400px] px-5 py-[18px] shadow-(--shadow-l)"
-              />
+              {preview && (
+                <BookingPreviewCard
+                  preview={preview}
+                  className="absolute bottom-0 -left-8 w-[400px] px-5 py-[18px] shadow-(--shadow-l)"
+                />
+              )}
             </div>
           </div>
         </Container>
@@ -96,7 +99,7 @@ export function HeroSection({ preview }: HeroSectionProps) {
             compactLabel
             className="h-[200px] w-full rounded-(--radius-l) md:h-[280px]"
           />
-          <BookingPreviewCard preview={preview} compact className="p-[18px] shadow-(--shadow-s)" />
+          {preview && <BookingPreviewCard preview={preview} compact className="p-[18px] shadow-(--shadow-s)" />}
         </Container>
       </div>
     </>
@@ -134,7 +137,7 @@ function BookingPreviewCard({ preview, compact, className }: BookingPreviewCardP
           <p className="text-[14px] font-bold text-(--color-text-primary)">
             {preview.doctorName} · {preview.specialty}
           </p>
-          <p className="mt-0.5 text-[12px] text-(--color-text-secondary)">Ближайшая запись сегодня</p>
+          <p className="mt-0.5 text-[12px] text-(--color-text-secondary)">{preview.dayLabel}</p>
         </div>
       </div>
 

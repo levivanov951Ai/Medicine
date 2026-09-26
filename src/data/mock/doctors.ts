@@ -15,6 +15,8 @@
  *
  * Цена врача на карточке («от …») — цена его основного приёма, то есть
  * первой услуги в `services`. Она вычисляется, а не дублируется.
+ * Ближайшее свободное время здесь не хранится — оно считается из единого
+ * расписания (availability.ts) через services/availability.ts.
  */
 import type { Doctor } from "@/types/catalog";
 
@@ -31,7 +33,6 @@ export const mockDoctors: Doctor[] = [
     name: "Врач А. А.",
     specialty: "Терапевт",
     categoryIds: ["therapy"],
-    nextSlotLabel: "Сегодня, 14:20",
     experienceYears: 14,
     appointmentDuration: "30 минут",
     bio: "Ведёт приём взрослых пациентов: разбирает жалобы, читает уже имеющиеся обследования и подробно объясняет дальнейший план — какие анализы или консультации нужны и почему.",
@@ -48,7 +49,6 @@ export const mockDoctors: Doctor[] = [
     name: "Специалист №1",
     specialty: "Кардиолог",
     categoryIds: ["cardiology"],
-    nextSlotLabel: "Завтра, 10:00",
     experienceYears: 8,
     appointmentDuration: "30–40 минут",
     bio: "Ведёт приём взрослых с заболеваниями сердечно-сосудистой системы, подбирает обследования и наблюдение.",
@@ -66,7 +66,6 @@ export const mockDoctors: Doctor[] = [
     specialty: "Педиатр",
     additionalSpecialties: ["Детский кардиолог"],
     categoryIds: ["pediatrics", "cardiology"],
-    nextSlotLabel: "Сегодня, 16:40",
     experienceYears: 21,
     appointmentDuration: "30–40 минут",
     bio: "Ведёт приём детей: плановые осмотры, консультации при жалобах со стороны сердца, подробно объясняет родителям дальнейший план.",
@@ -83,7 +82,6 @@ export const mockDoctors: Doctor[] = [
     name: "Врач Б. Б.",
     specialty: "Гинеколог",
     categoryIds: ["gynecology"],
-    nextSlotLabel: "Завтра, 09:30",
     experienceYears: 11,
     appointmentDuration: "30 минут",
     bio: "Ведёт приём по гинекологии: плановые осмотры, консультации по результатам обследований.",
@@ -99,7 +97,6 @@ export const mockDoctors: Doctor[] = [
     name: "Специалист №3",
     specialty: "Дерматолог",
     categoryIds: ["dermatology"],
-    nextSlotLabel: "Сегодня, 18:00",
     experienceYears: 5,
     appointmentDuration: "20–30 минут",
     bio: "Консультирует по заболеваниям кожи, проводит осмотр родинок и образований.",
@@ -116,7 +113,6 @@ export const mockDoctors: Doctor[] = [
     name: "Врач В. В.",
     specialty: "Терапевт",
     categoryIds: ["therapy"],
-    nextSlotLabel: "Завтра, 11:20",
     experienceYears: 9,
     bio: "Ведёт приём взрослых пациентов, оформляет справки и больничные листы.",
     focusAreas: ["Терапия"],
@@ -132,7 +128,6 @@ export const mockDoctors: Doctor[] = [
     name: "Специалист №4",
     specialty: "Кардиолог",
     categoryIds: ["cardiology"],
-    nextSlotLabel: "Завтра, 12:30",
     experienceYears: 17,
     bio: "Ведёт приём взрослых с заболеваниями сердца, проводит УЗИ сердца.",
     focusAreas: ["Кардиология", "Эхокардиография"],
@@ -147,7 +142,6 @@ export const mockDoctors: Doctor[] = [
     specialty: "Кардиолог",
     additionalSpecialties: ["Врач функциональной диагностики"],
     categoryIds: ["cardiology", "diagnostics"],
-    nextSlotLabel: "Сегодня, 17:10",
     experienceYears: 12,
     focusAreas: ["Кардиология", "Функциональная диагностика"],
     services: [
@@ -162,7 +156,6 @@ export const mockDoctors: Doctor[] = [
     name: "Врач Г. Г.",
     specialty: "Невролог",
     categoryIds: ["neurology"],
-    nextSlotLabel: "Завтра, 15:00",
     experienceYears: 10,
     focusAreas: ["Неврология"],
     services: [
@@ -175,7 +168,6 @@ export const mockDoctors: Doctor[] = [
     name: "Врач Д. Д.",
     specialty: "Эндокринолог",
     categoryIds: ["endocrinology"],
-    nextSlotLabel: "Сегодня, 13:40",
     experienceYears: 7,
     focusAreas: ["Эндокринология"],
     services: [{ serviceId: "endocrinologist", price: { amount: 2700 } }],
@@ -185,7 +177,6 @@ export const mockDoctors: Doctor[] = [
     name: "Специалист №6",
     specialty: "Офтальмолог",
     categoryIds: ["ophthalmology"],
-    nextSlotLabel: "Завтра, 10:40",
     experienceYears: 6,
     focusAreas: ["Офтальмология"],
     services: [
@@ -198,7 +189,6 @@ export const mockDoctors: Doctor[] = [
     name: "Специалист №7",
     specialty: "Врач УЗИ-диагностики",
     categoryIds: ["diagnostics"],
-    nextSlotLabel: "Сегодня, 15:30",
     experienceYears: 15,
     focusAreas: ["Ультразвуковая диагностика"],
     services: [
@@ -213,7 +203,6 @@ export const mockDoctors: Doctor[] = [
     name: "Врач Е. Е.",
     specialty: "Стоматолог",
     categoryIds: ["dentistry"],
-    nextSlotLabel: "Завтра, 09:00",
     experienceYears: 8,
     focusAreas: ["Стоматология"],
     services: [

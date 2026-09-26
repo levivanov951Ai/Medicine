@@ -1,6 +1,5 @@
 import { clinic } from "@/data/clinic";
 import { mockAnalyses } from "@/data/mock/analyses";
-import { mockBookingPreview } from "@/data/mock/booking-preview";
 import { mockAnalysisCategories, mockServiceCategories } from "@/data/mock/categories";
 import { mockDoctors } from "@/data/mock/doctors";
 import { mockPromotions } from "@/data/mock/promotions";
@@ -32,5 +31,4 @@ export const mockSource: DataSource = {
 
   getPromotions: async () => mockPromotions,
   getQuickLinks: async () => mockQuickLinks,
-  getBookingPreview: async () => mockBookingPreview,
 };

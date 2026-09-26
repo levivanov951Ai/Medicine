@@ -87,8 +87,6 @@ export interface Doctor {
   categoryIds: string[];
   /** Стоимость основного приёма — «от» на карточке. */
   price: Price;
-  /** Ближайшее свободное время, готовая подпись: «Сегодня, 14:20». */
-  nextSlotLabel: string;
   experienceYears: number;
   /** Раздел «О враче». */
   bio?: string;
@@ -121,10 +119,20 @@ export interface QuickLink {
   href: string;
 }
 
-/** Данные декоративного превью записи в первом экране главной. */
+/**
+ * Врач с ближайшим свободным временем из расписания (services/availability.ts):
+ * «Сегодня, 14:20». `null` — свободного времени в горизонте записи нет.
+ */
+export interface DoctorWithSlot extends Doctor {
+  nextSlotLabel: string | null;
+}
+
+/** Данные декоративного превью записи в первом экране главной — из расписания. */
 export interface BookingPreview {
   doctorName: string;
   specialty: string;
+  /** «Ближайшая запись сегодня». */
+  dayLabel: string;
   slots: string[];
   selectedSlot: string;
 }

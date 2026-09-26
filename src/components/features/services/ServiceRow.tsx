@@ -10,7 +10,9 @@ interface ServiceRowProps {
   title: string;
   price: PriceValue;
   /** Запись: со страницы каталога — с услугой, из профиля врача — с услугой и врачом. */
-  bookingHref: string;
+  bookingHref?: string;
+  /** Выбор услуги внутри записи: кнопка «Выбрать» вместо ссылки «Записаться». */
+  onSelect?: () => void;
   /** Страница услуги. Без неё ссылка «Подробнее» не выводится (профиль врача). */
   detailsHref?: string;
   /**
@@ -26,7 +28,7 @@ interface ServiceRowProps {
  * Mobile: название сверху, под ним цена и действия.
  * Со скидкой — метка «Акция» рядом с названием, как в строке анализа.
  */
-export function ServiceRow({ title, price, bookingHref, detailsHref, variant = "catalog" }: ServiceRowProps) {
+export function ServiceRow({ title, price, bookingHref, onSelect, detailsHref, variant = "catalog" }: ServiceRowProps) {
   const compact = variant === "compact";
   const hasDiscount = price.oldAmount !== undefined;
 
@@ -70,10 +72,19 @@ export function ServiceRow({ title, price, bookingHref, detailsHref, variant = "
               <Icon name="chevron-right" size={16} />
             </Link>
           )}
-          <Button href={bookingHref} variant="secondary" size="sm" className="shrink-0">
-            Записаться
-            <span className="sr-only">: {title}</span>
-          </Button>
+          {onSelect ? (
+            <Button variant="secondary" size="sm" className="shrink-0" onClick={onSelect}>
+              Выбрать
+              <span className="sr-only">: {title}</span>
+            </Button>
+          ) : (
+            bookingHref && (
+              <Button href={bookingHref} variant="secondary" size="sm" className="shrink-0">
+                Записаться
+                <span className="sr-only">: {title}</span>
+              </Button>
+            )
+          )}
         </div>
       </div>
     </article>

@@ -9,7 +9,7 @@ import { Search } from "@/components/ui/Search";
 import { countLabel, WORDS } from "@/lib/plural";
 import { routes } from "@/lib/routes";
 import { useCatalogFilters } from "@/lib/use-catalog-filters";
-import type { Category, Doctor } from "@/types/catalog";
+import type { Category, DoctorWithSlot as Doctor } from "@/types/catalog";
 import { DoctorCard } from "./DoctorCard";
 
 /** Карточек за раз: три ряда по три на desktop. */

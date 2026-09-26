@@ -42,6 +42,47 @@ export function EmptyState({
   );
 }
 
+export type NoticeTone = "info" | "warning" | "neutral";
+
+interface NoticeProps {
+  tone: NoticeTone;
+  icon: IconName;
+  title: string;
+  description?: ReactNode;
+  action?: ReactNode;
+  /** alert — ошибка, требующая внимания; status — спокойное сообщение. */
+  role?: "alert" | "status";
+  className?: string;
+}
+
+const noticeTones: Record<NoticeTone, { box: string; icon: string }> = {
+  info: { box: "border-(--color-border-accent) bg-(--color-surface-accent)", icon: "text-(--color-icon-strong)" },
+  warning: { box: "border-(--color-border-warning) bg-(--color-surface-warning)", icon: "text-(--color-text-warning)" },
+  neutral: { box: "border-(--color-border-decorative) bg-(--color-surface-page)", icon: "text-(--color-text-secondary)" },
+};
+
+/**
+ * Сообщение в рамке (Booking-*: «нет времени на дату», «истёк резерв»,
+ * «время только что заняли», «нет соединения»): иконка, заголовок,
+ * пояснение и действие.
+ */
+export function Notice({ tone, icon, title, description, action, role, className }: NoticeProps) {
+  return (
+    <div role={role} className={cn("flex items-start gap-3 rounded-[14px] border p-4", noticeTones[tone].box, className)}>
+      <span className={cn("mt-px flex shrink-0", noticeTones[tone].icon)}>
+        <Icon name={icon} size={20} />
+      </span>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <p className="text-[15px] leading-[21px] font-semibold text-(--color-text-primary)">{title}</p>
+        {description && (
+          <div className="text-[13px] leading-[19px] text-(--color-text-secondary)">{description}</div>
+        )}
+        {action && <div className="mt-1 flex flex-wrap items-center gap-3">{action}</div>}
+      </div>
+    </div>
+  );
+}
+
 interface ErrorStateProps {
   title: string;
   description?: string;
@@ -51,25 +92,15 @@ interface ErrorStateProps {
 
 export function ErrorState({ title, description, action, className }: ErrorStateProps) {
   return (
-    <div
+    <Notice
+      tone="warning"
+      icon="alert"
       role="alert"
-      className={cn(
-        "flex items-start gap-3 rounded-[14px] border p-4",
-        "border-(--color-border-warning) bg-(--color-surface-warning)",
-        className,
-      )}
-    >
-      <span className="mt-px flex text-(--color-text-warning)">
-        <Icon name="alert" size={20} />
-      </span>
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <p className="text-[15px] leading-[21px] font-semibold text-(--color-text-primary)">{title}</p>
-        {description && (
-          <p className="text-[13px] leading-[19px] text-(--color-text-secondary)">{description}</p>
-        )}
-        {action && <div className="mt-1 flex flex-wrap items-center gap-3">{action}</div>}
-      </div>
-    </div>
+      title={title}
+      description={description}
+      action={action}
+      className={className}
+    />
   );
 }
 

@@ -1,44 +1,48 @@
 # PROGRESS — СМЛаб
 
-_Обновлено: 2026-09-25_
+_Обновлено: 2026-09-26_
 
 ## Завершено
 
-- Product / UX документация (`PROJECT_CONTEXT.md`, sitemap, flows)
-- Design v1
-- Канонические токены (`design/tokens.css`)
-- Контраст-аудит (`docs/CONTRAST_AUDIT.md`)
-- Next.js foundation
-- Переиспользуемые компоненты Homepage
-- Header
-- Mobile Navigation
-- Footer
+- Product / UX документация, Design v1, канонические токены, контраст-аудит
+- Next.js foundation, Header, Mobile Navigation, Footer
 - MOCK / service layer
-- Homepage desktop / mobile
-- Responsive-проверка
-- Accessibility-проверка
-- lint / typecheck / build
-- Services Catalog (`/services`, поиск `?q=`, направления `?category=`)
-- Service Details (`/services/[id]`)
-- Doctors Catalog (`/doctors`)
-- Doctor Details (`/doctors/[id]`)
-- Analyses Catalog (`/lab`)
-- Analysis Details (`/lab/[id]`)
-- Selected Analyses (`/lab/selected`, выбор сохраняется в браузере)
+- Homepage (desktop / mobile)
+- Services Catalog, Service Details
+- Doctors Catalog, Doctor Details
+- Analyses Catalog, Analysis Details, Selected Analyses
+- Doctor Booking
+- Lab Booking
+- Calendar
+- Time Slots
+- Reservation Timer
+- MOCK OTP inside booking
+- Booking Confirmation
+- Booking Success
+- Doctor Quick Slots
+- MOCK availability / service layer
+- Responsive- и accessibility-проверки, lint / typecheck / build
 
 ## Текущее состояние
 
-Главная и публичный каталог реализованы и работают на desktop и mobile.
-Решения и открытые вопросы этапа — `docs/DEVELOPER_HANDOFF.md`, раздел 13.
+Главная, публичные каталоги и обе записи работают на desktop и mobile.
+Запись — на MOCK: расписание, резерв и код подтверждения имитируются в браузере, CRM не подключена.
+Короткая сводка для новой сессии — `docs/SESSION_HANDOFF.md`.
 
-## Следующий этап
+## Следующий этап — Auth + Patient Account
 
-- Booking flow: запись к врачу (`/booking`) и запись на анализы (`/booking/lab`)
+- Standalone Login (`/login`: телефон → код)
+- Shared Auth State (общий для входа и записи)
+- Booking/Auth integration
+- Authenticated Header
+- Account Dashboard (`/account`)
+- Appointment Details
+- Patient Profile
+- MOCK Appointment Persistence (созданные записи видны в кабинете)
 
 ## Позже
 
-- Auth
-- Account
-- Комплексы анализов (`/lab/packages`), акции, вторичные страницы
+- Отмена и перенос записи
+- Вторичные страницы (акции, комплексы анализов, о клинике, контакты, правовые)
 - Интеграция с CRM
-- Production-тестирование и деплой
+- Production hardening

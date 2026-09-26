@@ -1,6 +1,5 @@
 import type {
   Analysis,
-  BookingPreview,
   Category,
   Doctor,
   Promotion,
@@ -40,5 +39,4 @@ export interface DataSource {
 
   getPromotions(): Promise<Promotion[]>;
   getQuickLinks(): Promise<QuickLink[]>;
-  getBookingPreview(): Promise<BookingPreview>;
 }

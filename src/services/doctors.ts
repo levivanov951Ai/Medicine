@@ -1,10 +1,12 @@
-import type { Category, Doctor, Price, Service } from "@/types/catalog";
+import type { DayAvailability } from "./booking/types";
+import type { Category, Doctor, DoctorWithSlot, Price, Service } from "@/types/catalog";
+import { getDoctorQuickSlots, withNextSlots } from "./availability";
 import { dataSource } from "./source";
 
 export interface DoctorsCatalogData {
   /** Только направления, в которых есть врачи. */
   categories: Category[];
-  doctors: Doctor[];
+  doctors: DoctorWithSlot[];
 }
 
 /** Услуга врача и её стоимость у него. */
@@ -14,10 +16,17 @@ export interface DoctorServiceItem {
 }
 
 export interface DoctorPageData {
-  doctor: Doctor;
+  doctor: DoctorWithSlot;
+  /** Ближайшие дни со свободным временем — быстрые слоты. */
+  quickSlots: DayAvailability[];
   /** Основное направление — для хлебных крошек. */
   category: Category | null;
   services: DoctorServiceItem[];
+}
+
+/** Все врачи без расписания — для записи, где ближайшее время считается в браузере. */
+export async function getDoctors(): Promise<Doctor[]> {
+  return dataSource.getDoctors();
 }
 
 /** Каталог «Врачи». Направления — общие с каталогом услуг. */
@@ -30,7 +39,7 @@ export async function getDoctorsCatalog(): Promise<DoctorsCatalogData> {
     categories: categories.filter((category) =>
       doctors.some((doctor) => doctor.categoryIds.includes(category.id)),
     ),
-    doctors,
+    doctors: await withNextSlots(doctors),
   };
 }
 
@@ -49,8 +58,10 @@ export async function getDoctorPage(id: string): Promise<DoctorPageData | null> 
     return service ? [{ service, price: offer.price }] : [];
   });
 
+  const [withSlot] = await withNextSlots([doctor]);
   return {
-    doctor,
+    doctor: withSlot,
+    quickSlots: await getDoctorQuickSlots(doctor.id),
     category: categories.find((category) => category.id === doctor.categoryIds[0]) ?? null,
     services: doctorServices,
   };

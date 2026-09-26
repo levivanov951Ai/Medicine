@@ -246,6 +246,21 @@
   --color-toggle-selected-bg-hover: var(--blue-700);
   --color-toggle-selected-fg:       var(--white);
 
+  /* ---------- Запись: степпер и календарь (Booking-*.dc.html) ---------- */
+
+  /* Текущий шаг и выбранный день: белая цифра на blue-600 — 4.73. */
+  --color-step-current-bg:  var(--blue-600);
+  /* Пройденный шаг: галочка blue-700 на blue-100 — 6.09. */
+  --color-step-done-bg:     var(--blue-100);
+  --color-step-done-fg:     var(--blue-700);
+  /* Будущий шаг и день без свободного времени. В макете ink-400 (3.01 —
+     не проходит 4.5 для текста 14–15px); используется утверждённый
+     затемнённый оттенок из исправления B — 4.52 на белом. */
+  --color-step-upcoming-fg: var(--color-text-placeholder);
+  --color-calendar-selected-bg: var(--blue-600);
+  /* Звёздочка обязательного поля (Booking-*: pink-700) — 5.68 на белом. */
+  --color-required-mark: var(--pink-700);
+
   /* ---------- Кнопки: ghost ---------- */
 
   --color-ghost-bg-hover:   var(--surface);   /* текст blue-700: 6.61 */

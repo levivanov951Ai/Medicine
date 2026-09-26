@@ -30,6 +30,14 @@ const paths: Record<IconName, ReactNode> = {
       <line x1="3" y1="12.5" x2="21" y2="12.5" />
     </>
   ),
+  calendar: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+      <line x1="3.5" y1="9.5" x2="20.5" y2="9.5" />
+      <line x1="8" y1="3" x2="8" y2="6.5" />
+      <line x1="16" y1="3" x2="16" y2="6.5" />
+    </>
+  ),
   check: <polyline points="5 12.5 9.5 17 19 6.5" />,
   "check-circle": (
     <>
@@ -37,6 +45,8 @@ const paths: Record<IconName, ReactNode> = {
       <polyline points="8.3 12.3 10.8 14.8 15.7 9.5" />
     </>
   ),
+  "chevron-down": <polyline points="6 9 12 15 18 9" />,
+  "chevron-left": <polyline points="15 6 9 12 15 18" />,
   "chevron-right": <polyline points="9 6 15 12 9 18" />,
   child: (
     <>

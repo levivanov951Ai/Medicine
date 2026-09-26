@@ -1,5 +1,6 @@
-import type { Analysis, BookingPreview, Doctor, Promotion, QuickLink } from "@/types/catalog";
+import type { Analysis, BookingPreview, DoctorWithSlot, Promotion, QuickLink } from "@/types/catalog";
 import type { ClinicInfo } from "@/types/clinic";
+import { getBookingPreview, withNextSlots } from "./availability";
 import { getPopularServices, type ServiceListItem } from "./services-catalog";
 import { dataSource } from "./source";
 
@@ -15,14 +16,15 @@ export interface HomepageData {
   quickLinks: QuickLink[];
   popularServices: ServiceListItem[];
   featuredAnalyses: Analysis[];
-  featuredDoctors: Doctor[];
+  featuredDoctors: DoctorWithSlot[];
   promotions: Promotion[];
-  bookingPreview: BookingPreview;
+  /** null — у врача нет свободного времени, превью не показывается. */
+  bookingPreview: BookingPreview | null;
 }
 
 /** Все данные главной одним запросом — источники опрашиваются параллельно. */
 export async function getHomepageData(): Promise<HomepageData> {
-  const [clinic, quickLinks, popularServices, analyses, doctors, promotions, bookingPreview] =
+  const [clinic, quickLinks, popularServices, analyses, doctors, promotions] =
     await Promise.all([
       dataSource.getClinicInfo(),
       dataSource.getQuickLinks(),
@@ -30,16 +32,16 @@ export async function getHomepageData(): Promise<HomepageData> {
       dataSource.getAnalyses(),
       dataSource.getDoctors(),
       dataSource.getPromotions(),
-      dataSource.getBookingPreview(),
     ]);
+  const featuredDoctors = doctors.slice(0, HOMEPAGE_LIMITS.doctors);
 
   return {
     clinic,
     quickLinks,
     popularServices: popularServices.slice(0, HOMEPAGE_LIMITS.services),
     featuredAnalyses: analyses.slice(0, HOMEPAGE_LIMITS.analyses),
-    featuredDoctors: doctors.slice(0, HOMEPAGE_LIMITS.doctors),
+    featuredDoctors: await withNextSlots(featuredDoctors),
     promotions,
-    bookingPreview,
+    bookingPreview: featuredDoctors[0] ? await getBookingPreview(featuredDoctors[0]) : null,
   };
 }

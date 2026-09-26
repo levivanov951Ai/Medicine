@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { DoctorQuickSlots } from "@/components/features/doctors/DoctorQuickSlots";
 import { ServiceRow } from "@/components/features/services/ServiceRow";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Container } from "@/components/layout/Container";
@@ -30,7 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 const MAIN_CTA_ID = "doctor-booking";
 
 /** «Сегодня, 14:20» → «сегодня, 14:20» — внутри фразы. */
-const lowerFirst = (text: string) => text.charAt(0).toLocaleLowerCase("ru-RU") + text.slice(1);
+const lowerFirst = (text: string | null) =>
+  text ? text.charAt(0).toLocaleLowerCase("ru-RU") + text.slice(1) : null;
 
 /**
  * Страница врача — DoctorProfile-Desktop / DoctorProfile-Mobile.
@@ -43,7 +45,7 @@ export default async function DoctorPage({ params }: PageProps) {
   const data = await getDoctorPage((await params).id);
   if (!data) notFound();
 
-  const { doctor, category, services } = data;
+  const { doctor, category, services, quickSlots } = data;
   const bookingHref = routes.bookingWithDoctor(doctor.id);
   const specialties = [doctor.specialty, ...(doctor.additionalSpecialties ?? [])];
   const experience = `Стаж ${countLabel(doctor.experienceYears, WORDS.year)}`;
@@ -95,12 +97,14 @@ export default async function DoctorPage({ params }: PageProps) {
                 </span>
               )}
             </div>
-            <p className="mt-2 flex items-center gap-2 text-[14px] font-semibold text-(--color-text-primary) md:text-[15px] lg:mt-0">
-              <span className="flex text-(--color-icon-strong)">
-                <Icon name="clock" size={18} className="size-4 md:size-[18px]" />
-              </span>
-              Ближайшее время: {nextSlot}
-            </p>
+            {nextSlot && (
+              <p className="mt-2 flex items-center gap-2 text-[14px] font-semibold text-(--color-text-primary) md:text-[15px] lg:mt-0">
+                <span className="flex text-(--color-icon-strong)">
+                  <Icon name="clock" size={18} className="size-4 md:size-[18px]" />
+                </span>
+                Ближайшее время: {nextSlot}
+              </p>
+            )}
             <div id={MAIN_CTA_ID} className="mt-5 lg:mt-0">
               <Button href={bookingHref} size="md" className="w-full md:h-[52px] md:w-auto md:px-6 md:text-[18px]">
                 Записаться
@@ -174,10 +178,14 @@ export default async function DoctorPage({ params }: PageProps) {
         </section>
       )}
 
+      <Container className="pt-8 md:pt-14">
+        <DoctorQuickSlots doctorId={doctor.id} days={quickSlots} />
+      </Container>
+
       <StickyActionBar
         watchId={MAIN_CTA_ID}
         title={`${doctor.name} · ${doctor.specialty}`}
-        subtitle={`от ${formatRub(doctor.price.amount)} · ${nextSlot}`}
+        subtitle={`от ${formatRub(doctor.price.amount)}${nextSlot ? ` · ${nextSlot}` : ""}`}
         action={
           <Button href={bookingHref} size="md">
             Записаться

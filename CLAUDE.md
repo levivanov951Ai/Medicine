@@ -1,6 +1,6 @@
 # CLAUDE.md — СМЛаб
 
-Сайт медицинской клиники «СМЛаб». Текущее состояние — [`docs/PROGRESS.md`](docs/PROGRESS.md).
+Сайт медицинской клиники «СМЛаб». Текущее состояние — [`docs/PROGRESS.md`](docs/PROGRESS.md), сводка для новой сессии — [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md).
 
 ## Источники истины
 
@@ -29,6 +29,7 @@ Next.js (App Router) · TypeScript · React · Tailwind CSS v4 · Inter (`next/f
 - В компонентах только semantic-токены. Primitive HEX в JSX/TSX/CSS не хардкодить, вторую палитру не создавать, примитивы без согласования не менять.
 - Один MOCK-набор на сущность (PD-25): врачи, услуги, анализы, акции — в `src/data/mock/`, без версий под отдельные страницы.
 - Выбранные анализы — `src/lib/selected-analyses.ts` (браузер, localStorage). С CRM не связаны.
+- Запись: UI → `src/services/booking` (`bookingService`) → MOCK-расписание `src/data/mock/availability.ts`. Черновик записи — `src/lib/booking-draft.ts` (sessionStorage). Настоящих смс и CRM нет.
 - `cn()` не разрешает конфликты Tailwind-классов: не переопределять базовые классы компонента через `className`, а добавлять вариант (prop).
 
 ## Проверки после значимых изменений
