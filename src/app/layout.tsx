@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { indexingAllowed, siteUrl } from "@/lib/site-config";
 import { getClinicInfo } from "@/services/clinic";
 import "./globals.css";
 
@@ -15,11 +16,19 @@ const inter = Inter({
 export async function generateMetadata(): Promise<Metadata> {
   const clinic = await getClinicInfo();
   return {
+    // UNKNOWN, пока не назначен домен (docs/CRM_INTEGRATION.md, раздел 14).
+    // Без него Next не может строить абсолютные OG/canonical адреса — это ок,
+    // просто не строит; сайт работает и без назначенного домена.
+    metadataBase: siteUrl ? new URL(siteUrl) : undefined,
     title: {
       default: `${clinic.name} — запись к врачу и на анализы`,
       template: `%s — ${clinic.name}`,
     },
     description: "Запись к врачу и на анализы онлайн. Запись подтверждается сразу.",
+    // Staging/demo по умолчанию — сайт не индексируется (site-config.ts).
+    // Страницы, которые не индексируются и в production (кабинет, запись,
+    // вход, юридические заглушки), сами задают robots — этот дефолт не трогают.
+    robots: indexingAllowed ? undefined : { index: false, follow: false },
   };
 }
 
