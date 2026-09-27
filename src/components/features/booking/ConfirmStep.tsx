@@ -23,19 +23,29 @@ interface ConfirmStepProps {
   total: { label: string; amount: number };
   /** Создание записи. Ошибки (резерв истёк, время заняли) обрабатывает мастер. */
   onConfirm: () => Promise<void>;
+  /** Заголовок шага — «Проверьте перенос» при переносе записи. */
+  title?: string;
+  confirmLabel?: string;
 }
 
 /**
  * «Проверьте запись» (Booking-*: шаг «Подтверждение»): вся запись целиком
  * перед созданием, «Изменить» у каждого блока. Онлайн-оплаты нет (PD-11).
  */
-export function ConfirmStep({ reservation, sections, total, onConfirm }: ConfirmStepProps) {
+export function ConfirmStep({
+  reservation,
+  sections,
+  total,
+  onConfirm,
+  title = "Проверьте запись",
+  confirmLabel = "Подтвердить запись",
+}: ConfirmStepProps) {
   const [submitting, setSubmitting] = useState(false);
 
   return (
     <div className="flex flex-col gap-5">
       <ReservationTimer expiresAt={reservation.expiresAt} />
-      <StepTitle>Проверьте запись</StepTitle>
+      <StepTitle>{title}</StepTitle>
 
       <div className="rounded-(--radius-l) border border-(--color-border-decorative) bg-(--color-surface-card) p-5 shadow-(--shadow-s) md:p-7">
         <div className="flex flex-col gap-6">
@@ -105,7 +115,7 @@ export function ConfirmStep({ reservation, sections, total, onConfirm }: Confirm
           setSubmitting(false);
         }}
       >
-        Подтвердить запись
+        {confirmLabel}
       </Button>
       <p className="text-center text-[13px] text-(--color-text-secondary)">Оплата — в клинике, при визите.</p>
     </div>

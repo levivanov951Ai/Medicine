@@ -22,11 +22,13 @@ function isActive(pathname: string, href: string) {
  * Навигация кабинета (Account Subnav, Cabinet-*): «Мои записи» / «Профиль»,
  * справа на desktop — «Выйти». На mobile вкладки делят ширину пополам,
  * выход — в профиле. На mobile-странице записи подменю нет (Cabinet-Details-Mobile):
- * там своя ссылка «Все записи».
+ * там своя ссылка «Все записи». На переносе записи подменю нет совсем.
  */
 export function AccountNav() {
   const pathname = usePathname();
   const onDetails = pathname.startsWith("/account/appointments/");
+  // Перенос записи — пошаговый экран со своим «Назад», как запись: подменю не нужно.
+  if (pathname.endsWith("/reschedule")) return null;
 
   return (
     <nav

@@ -54,9 +54,25 @@ export interface LabDraft extends DraftBase {
   bookedAnalysisIds?: string[];
 }
 
+export type RescheduleStep = "datetime" | "confirm";
+
+/**
+ * Перенос существующей записи: выбирается только новое время.
+ * Сама запись в черновике не хранится — только резерв нового времени.
+ */
+export interface RescheduleDraft {
+  /** id переносимой записи. */
+  appointmentId: string;
+  step: RescheduleStep;
+  date?: IsoDate;
+  time?: string;
+  reservation?: Reservation;
+  notice?: BookingNotice;
+}
+
 export const doctorDraftStore = createSessionStore<DoctorDraft>("smlab:booking:doctor");
 export const labDraftStore = createSessionStore<LabDraft>("smlab:booking:lab");
-
+export const rescheduleDraftStore = createSessionStore<RescheduleDraft>("smlab:booking:reschedule");
 
 export function newDraftId(): string {
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;

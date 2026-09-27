@@ -1,10 +1,10 @@
 # SESSION HANDOFF — СМЛаб
 
-_2026-09-27. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–15)._
+_2026-09-27. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–16)._
 
 ## Current state
 
-Homepage, публичные каталоги, оба Booking flow, вход и личный кабинет реализованы (frontend, MOCK-данные в браузере).
+Весь frontend MVP реализован (MOCK-данные в браузере): главная, каталоги, запись, вход, кабинет с отменой и переносом, акции, «О клинике», «Контакты», правовые страницы, комплексные программы.
 
 ## Current stack
 
@@ -24,8 +24,13 @@ Next.js App Router · TypeScript · Tailwind CSS v4 · React · канониче
 | `/account` | Мои записи (только после входа) |
 | `/account/appointments/[id]` | Детали записи |
 | `/account/profile` | Профиль: имя, телефон, выход |
+| `/account/appointments/[id]/reschedule` | Перенос записи |
+| `/lab/packages` | Комплексные программы |
+| `/promo` | Акции (страницы отдельной акции нет — PD-28) |
+| `/about`, `/contacts` | О клинике, контакты |
+| `/legal/[slug]` | `privacy`, `terms`, `offer` — тексты UNKNOWN |
 
-Заглушки: `/promo`, `/promo/[id]`, `/lab/packages`, `/about`, `/contacts`, `/legal/[slug]`.
+Заглушек в навигации нет.
 
 ## Important architecture
 
@@ -33,14 +38,16 @@ Next.js App Router · TypeScript · Tailwind CSS v4 · React · канониче
 - **Auth** — UI → `authSession` / `useAuth` (`src/lib/auth-session.ts`, единое состояние loading / guest / authenticated) → `authService` (`src/services/auth`) → MOCK в localStorage. Код `11111`; «Демо-код» только при `NEXT_PUBLIC_DEMO_MODE=true` (PD-26). OTP-интерфейс общий: `useOtpFlow` + `OtpCodeField`.
 - **Patient** — `src/types/patient.ts`: id, name (может быть `null`), phoneDigits, createdAt. Без медицинских данных.
 - **Appointment Store** — `src/types/appointment.ts` + `appointmentService` (`src/services/appointments`) → MOCK localStorage. Записи создаёт только `bookingService.createAppointment`; хранятся ссылки на каталог, цена и адрес — снимок. «Завершена» — по времени.
+- **Отмена и перенос** — `appointmentService.getActions` (`canCancel`, `canReschedule`, `restrictionReason` — демо-правило, PRODUCTION RULE UNKNOWN), `appointmentService.cancel`, `bookingService.rescheduleAppointment`. Перенос — те же календарь, слоты, резерв 5 минут и подтверждение, что в записи. Подтверждение отмены — `Dialog` (модалка / нижний лист).
 - **Route protection** — `AccountGuard` (`src/app/account/layout.tsx`): гость → `/login?next=…`. Только клиентская демонстрация.
 - **Booking** — `bookingService` (`src/services/booking`) → `src/data/mock/availability.ts`; черновик — `src/lib/booking-draft.ts` (sessionStorage). Занятое время — из Appointment Store.
-- **Selected analyses** — `src/lib/selected-analyses.ts` (localStorage).
+- **Selected analyses** — `src/lib/selected-analyses.ts` (localStorage). Комплексная программа (`LabPackage`, только `analysisIds`) добавляет в него свой состав без дублей.
+- **Акции** — `src/services/promotions.ts`: действующие, со ссылкой на услугу / анализ / программу. **Правовые документы** — `src/data/legal.ts`. **Карта** — `MapPlaceholder`.
 - Переключение MOCK → CRM: `source.ts`, `booking/index.ts`, `auth/index.ts`, `appointments/index.ts` — по одной строке.
 
 ## Next task
 
-Appointment Management + Secondary Pages: отмена и перенос записи (кнопки и места в UI уже есть), акции, контакты, о клинике, правовые шаблоны, при необходимости — комплексы анализов. После — CRM Integration.
+CRM Integration Preparation + CRM Integration: сверить модели и контракты сервисов (`DataSource`, `bookingService`, `authService`, `appointmentService`) с CRM, заменить MOCK-реализации.
 
 ## Known production blockers
 
@@ -49,4 +56,6 @@ Appointment Management + Secondary Pages: отмена и перенос зап�
 - Реальный OTP/SMS-провайдер — UNKNOWN.
 - Серверная сессия и защита кабинета — нет (сейчас всё в браузере).
 - Настоящая блокировка слотов требует backend / CRM.
+- Сроки отмены и переноса — PRODUCTION RULE UNKNOWN.
+- Скидочная цена комплексной программы (PD-29), юридические тексты, координаты для карты — UNKNOWN.
 - Блок «Уведомления» в профиле — не в MVP (PD-27, PROJECT_CONTEXT.md): смс-провайдера нет, сроки напоминаний клиникой не подтверждены.

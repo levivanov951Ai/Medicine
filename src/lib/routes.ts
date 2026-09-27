@@ -28,10 +28,11 @@ export const routes = {
   lab: "/lab",
   labCatalog: (params: { q?: string; category?: string }) => catalogHref("/lab", params),
   labPackages: "/lab/packages",
+  /** Программа на странице комплексов — отдельной страницы программы нет. */
+  labPackage: (id: string) => `/lab/packages#${encodeURIComponent(id)}`,
   labSelected: "/lab/selected",
   analysis: (id: string) => `/lab/${encodeURIComponent(id)}`,
   promo: "/promo",
-  promotion: (id: string) => `/promo/${encodeURIComponent(id)}`,
   about: "/about",
   contacts: "/contacts",
   login: "/login",
@@ -53,6 +54,7 @@ export const routes = {
   account: "/account",
   accountProfile: "/account/profile",
   appointment: (id: string) => `/account/appointments/${encodeURIComponent(id)}`,
+  rescheduleAppointment: (id: string) => `/account/appointments/${encodeURIComponent(id)}/reschedule`,
 } as const;
 
 function bookingHref(params: Record<string, string | undefined>): string {

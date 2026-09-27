@@ -2,6 +2,7 @@ import { clinic } from "@/data/clinic";
 import { mockAnalyses } from "@/data/mock/analyses";
 import { mockAnalysisCategories, mockServiceCategories } from "@/data/mock/categories";
 import { mockDoctors } from "@/data/mock/doctors";
+import { mockLabPackages } from "@/data/mock/packages";
 import { mockPromotions } from "@/data/mock/promotions";
 import { mockQuickLinks } from "@/data/mock/quick-links";
 import { mockPopularServiceIds, mockServices } from "@/data/mock/services";
@@ -28,6 +29,7 @@ export const mockSource: DataSource = {
   getAnalysisCategories: async () => mockAnalysisCategories,
   getAnalyses: async () => mockAnalyses,
   getAnalysisById: async (id) => byId(mockAnalyses, id),
+  getLabPackages: async () => mockLabPackages,
 
   getPromotions: async () => mockPromotions,
   getQuickLinks: async () => mockQuickLinks,

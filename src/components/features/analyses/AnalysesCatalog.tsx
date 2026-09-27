@@ -1,5 +1,6 @@
 "use client";
 
+import { PackagesBanner } from "@/components/features/analyses/PackagesBanner";
 import { CategoryFilter } from "@/components/features/catalog/CategoryFilter";
 import { CatalogIntro } from "@/components/features/catalog/CatalogIntro";
 import { CatalogResults } from "@/components/features/catalog/CatalogResults";
@@ -99,6 +100,7 @@ export function AnalysesCatalog({ categories, items, initialQuery, initialCatego
             </ul>
           </CatalogResults>
         </div>
+        <PackagesBanner className="mt-8 md:mt-10" />
       </Container>
     </>
   );

@@ -1,3 +1,4 @@
+import { legalDocuments } from "@/data/legal";
 import { routes } from "./routes";
 
 export interface NavItem {
@@ -15,12 +16,12 @@ export const mainNav: NavItem[] = [
   { label: "Контакты", href: routes.contacts },
 ];
 
-/** Правовые страницы. Содержимое — UNKNOWN (PROJECT_CONTEXT.md, раздел 6). */
-export const legalNav: Array<NavItem & { slug: string }> = [
-  { slug: "privacy", label: "Политика конфиденциальности", href: routes.legal("privacy") },
-  { slug: "terms", label: "Пользовательское соглашение", href: routes.legal("terms") },
-  { slug: "offer", label: "Публичная оферта", href: routes.legal("offer") },
-];
+/** Правовые страницы — из перечня документов (src/data/legal.ts). Тексты — UNKNOWN. */
+export const legalNav: Array<NavItem & { slug: string }> = legalDocuments.map((document) => ({
+  slug: document.slug,
+  label: document.title,
+  href: routes.legal(document.slug),
+}));
 
 /** Активен ли пункт меню для текущего пути. Главная не подсвечивает ничего. */
 export function isNavItemActive(pathname: string, href: string): boolean {

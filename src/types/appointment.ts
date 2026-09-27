@@ -50,3 +50,18 @@ export interface LabAppointment extends AppointmentBase {
 }
 
 export type Appointment = DoctorAppointment | LabAppointment;
+
+/**
+ * Что пациент может сделать с записью. Решает источник данных, а не интерфейс:
+ * сейчас — простое демо-правило (MOCK), позже — CRM / backend.
+ *
+ * ⚠️ PRODUCTION RULE UNKNOWN: срок, до которого разрешены отмена и перенос,
+ * клиника не сообщила (PD-06, PROJECT_CONTEXT.md 6.2). Интерфейс не содержит
+ * захардкоженных сроков — только показывает `restrictionReason`, если он пришёл.
+ */
+export interface AppointmentActions {
+  canCancel: boolean;
+  canReschedule: boolean;
+  /** Почему действие недоступно — текст для пациента. `null` — причину показывать не нужно. */
+  restrictionReason: string | null;
+}

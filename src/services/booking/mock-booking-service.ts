@@ -25,7 +25,7 @@ import {
  *   плюс время действующих записей из общего хранилища записей;
  * - резерв — только в этой вкладке (sessionStorage);
  * - созданная запись попадает в хранилище записей (mock-appointment-store)
- *   и сразу видна в личном кабинете пациента;
+ *   и сразу видна в личном кабинете пациента; перенос меняет в ней дату и время;
  * - задержка ответа — чтобы были видны состояния загрузки.
  *
  * Код подтверждения и вход — authService (src/services/auth), не здесь.
@@ -206,5 +206,24 @@ export const mockBookingService: BookingService = {
         ? mockAppointmentStore.create({ ...common, type: "doctor", doctorId: target.doctorId, serviceId: target.serviceId! })
         : mockAppointmentStore.create({ ...common, type: "lab", analysisIds });
     return { ok: true, appointmentId: appointment.id };
+  },
+
+  async rescheduleAppointment({ patientId, appointmentId, target, reservation }) {
+    await delay(800);
+    const current = mockAppointmentStore.find(patientId, appointmentId);
+    if (!current || !mockAppointmentStore.canReschedule(current)) {
+      await mockBookingService.releaseReservation(reservation.id);
+      return { ok: false, reason: "not-allowed" };
+    }
+    const stored = reservations()[reservation.id];
+    if (!stored || stored.expiresAt <= Date.now()) return { ok: false, reason: "expired" };
+    await mockBookingService.releaseReservation(reservation.id);
+    if (scenario() === "taken-on-confirm" || stored.key !== slotKey(target, reservation.slot)) {
+      return { ok: false, reason: "unavailable" };
+    }
+
+    // Прежнее время освобождается само: занятость считается по действующим записям.
+    const moved = mockAppointmentStore.moveTo(appointmentId, reservation.slot);
+    return moved ? { ok: true, appointment: moved } : { ok: false, reason: "not-allowed" };
   },
 };

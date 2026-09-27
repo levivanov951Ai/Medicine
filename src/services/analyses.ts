@@ -1,4 +1,4 @@
-import type { Analysis, Category } from "@/types/catalog";
+import type { Analysis, Category, LabPackage } from "@/types/catalog";
 import { dataSource } from "./source";
 
 /** Анализ с подписью раздела — строка каталога и выбранных анализов. */
@@ -62,4 +62,31 @@ export async function getAnalysisPage(id: string): Promise<AnalysisPageData | nu
     category: categories.find((category) => category.id === analysis.categoryId) ?? null,
     related: toListItems(related, categories),
   };
+}
+
+/** Комплексная программа с составом из каталога анализов. */
+export interface LabPackageItem {
+  labPackage: LabPackage;
+  /** Анализы состава в порядке программы; отсутствующие в каталоге пропускаются. */
+  analyses: AnalysisListItem[];
+  /** Сумма анализов состава — по их текущим ценам. */
+  regularPrice: number;
+}
+
+/** «Комплексные программы»: программы без анализов (все пропали из каталога) не показываются. */
+export async function getLabPackages(): Promise<LabPackageItem[]> {
+  const [packages, analyses, categories] = await Promise.all([
+    dataSource.getLabPackages(),
+    dataSource.getAnalyses(),
+    dataSource.getAnalysisCategories(),
+  ]);
+  return packages
+    .map((labPackage) => {
+      const found = labPackage.analysisIds
+        .map((id) => analyses.find((item) => item.id === id))
+        .filter((item): item is Analysis => item !== undefined);
+      const items = toListItems(found, categories);
+      return { labPackage, analyses: items, regularPrice: found.reduce((sum, item) => sum + item.price.amount, 0) };
+    })
+    .filter((item) => item.analyses.length > 0);
 }

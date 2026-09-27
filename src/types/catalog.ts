@@ -69,6 +69,26 @@ export interface Analysis {
   relatedAnalysisIds?: string[];
 }
 
+/**
+ * Комплексная программа (check-up) — набор анализов на одну тему (PD-05).
+ * Отдельная сущность каталога: хранит только ссылки на анализы, их названия
+ * и цены берутся из набора анализов (PD-25).
+ */
+export interface LabPackage {
+  id: string;
+  title: string;
+  description?: string;
+  /** Состав — id канонических анализов. */
+  analysisIds: string[];
+  /**
+   * Специальная (скидочная) цена комплекса. `null` — отдельной цены нет,
+   * стоимость = сумма анализов состава. Скидочная цена комплекса — UNKNOWN,
+   * не подтверждена клиникой / CRM (PD-29, PROJECT_CONTEXT.md): пока все
+   * программы без специальной цены, packagePrice = null у всех.
+   */
+  packagePrice: number | null;
+}
+
 /** Услуга, которую ведёт конкретный врач, и её стоимость у него. */
 export interface DoctorService {
   serviceId: string;
@@ -102,11 +122,24 @@ export interface Doctor {
   services: DoctorService[];
 }
 
+/** С чем связана акция (PD-13): услуга, анализ или комплексная программа. */
+export type PromotionTarget =
+  | { kind: "service"; id: string }
+  | { kind: "analysis"; id: string }
+  | { kind: "package"; id: string };
+
 export interface Promotion {
   id: string;
   title: string;
-  /** Дата окончания, ISO: «2026-10-31». */
-  validUntil: string;
+  /** Короткое пояснение под названием (карточка страницы «Акции»). */
+  description: string;
+  /** Дата окончания, ISO: «2026-10-31». `null` — без даты окончания. */
+  validUntil: string | null;
+  /**
+   * Куда ведёт «Подробнее» / «Узнать больше». Отдельной страницы акции
+   * в Design v1 нет — пациент попадает на то, к чему акция относится.
+   */
+  target: PromotionTarget;
 }
 
 /** Быстрый переход на главной: направление или раздел сайта. */

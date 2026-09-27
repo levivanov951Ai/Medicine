@@ -1,6 +1,7 @@
-import type { Analysis, BookingPreview, DoctorWithSlot, Promotion, QuickLink } from "@/types/catalog";
+import type { Analysis, BookingPreview, DoctorWithSlot, QuickLink } from "@/types/catalog";
 import type { ClinicInfo } from "@/types/clinic";
 import { getBookingPreview, withNextSlots } from "./availability";
+import { getActivePromotions, type PromotionItem } from "./promotions";
 import { getPopularServices, type ServiceListItem } from "./services-catalog";
 import { dataSource } from "./source";
 
@@ -17,7 +18,7 @@ export interface HomepageData {
   popularServices: ServiceListItem[];
   featuredAnalyses: Analysis[];
   featuredDoctors: DoctorWithSlot[];
-  promotions: Promotion[];
+  promotions: PromotionItem[];
   /** null — у врача нет свободного времени, превью не показывается. */
   bookingPreview: BookingPreview | null;
 }
@@ -31,7 +32,7 @@ export async function getHomepageData(): Promise<HomepageData> {
       getPopularServices(),
       dataSource.getAnalyses(),
       dataSource.getDoctors(),
-      dataSource.getPromotions(),
+      getActivePromotions(),
     ]);
   const featuredDoctors = doctors.slice(0, HOMEPAGE_LIMITS.doctors);
 

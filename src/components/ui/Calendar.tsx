@@ -135,7 +135,8 @@ export function Calendar({ today, maxDate, selected, statusOf, onSelect, label }
                 onSelect(date);
               }}
               className={cn(
-                "flex h-10 w-full cursor-pointer flex-col items-center justify-center rounded-[10px] text-[15px] tabular-nums md:h-[42px]",
+                // Высота 44px — минимальная область нажатия (в макете 40 / 42px).
+                "flex h-11 w-full cursor-pointer flex-col items-center justify-center rounded-[10px] text-[15px] tabular-nums",
                 "disabled:cursor-default",
                 status === "outside" && "text-(--color-text-disabled)",
                 status === "available" &&

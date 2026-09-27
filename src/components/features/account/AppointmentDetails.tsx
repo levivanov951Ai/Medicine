@@ -1,56 +1,88 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState, LoadingState, Notice } from "@/components/ui/StateBlocks";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/lib/auth-session";
-import { formatCompactDate, formatLongDate } from "@/lib/dates";
+import { formatCompactDate, formatDayMonthFromIso, formatLongDate } from "@/lib/dates";
 import { formatRub } from "@/lib/format";
 import { countLabel, WORDS } from "@/lib/plural";
 import { routes } from "@/lib/routes";
 import type { AppointmentReferences } from "@/services/account";
 import { appointmentService, getAppointmentStatus } from "@/services/appointments";
-import type { Appointment, AppointmentStatus } from "@/types/appointment";
+import type { Appointment, AppointmentActions, AppointmentStatus } from "@/types/appointment";
 import { describeAppointment } from "./appointment-view";
 
 type LoadState =
   | { kind: "loading" }
   | { kind: "missing" }
-  | { kind: "ready"; appointment: Appointment; status: AppointmentStatus };
+  | { kind: "ready"; appointment: Appointment; status: AppointmentStatus; actions: AppointmentActions };
+
+/** Что изменилось — сообщение после отмены или переноса. */
+export type AppointmentUpdate = "cancelled" | "rescheduled";
+
+interface AppointmentDetailsProps {
+  id: string;
+  references: AppointmentReferences;
+  /** Перенос только что подтверждён (?updated=rescheduled). */
+  initialUpdate?: AppointmentUpdate | null;
+}
 
 /**
  * Детали записи (Cabinet-Details-*): услуга, врач или анализы, дата и время,
  * адрес, стоимость, статус. Чужая или несуществующая запись — «Запись не найдена».
  *
- * «Перенести» и «Отменить» показаны, как в Design v1, но пока не меняют запись:
- * настоящая MOCK-механика — следующий этап (PD-06). По нажатию — нейтральное
- * сообщение, статус записи не трогается.
+ * «Перенести» и «Отменить» доступны, если это разрешает источник данных
+ * (appointmentService.getActions: сейчас демо-правило, позже — CRM).
+ * Отмена — через окно подтверждения (desktop — модалка, mobile — нижний лист);
+ * запись остаётся в истории со статусом «Отменена». Перенос — отдельный экран.
  */
-export function AppointmentDetails({ id, references }: { id: string; references: AppointmentReferences }) {
+export function AppointmentDetails({ id, references, initialUpdate = null }: AppointmentDetailsProps) {
   const auth = useAuth();
   const patientId = auth.status === "authenticated" ? auth.patient.id : null;
   const [state, setState] = useState<LoadState>({ kind: "loading" });
-  const [actionNotice, setActionNotice] = useState(false);
-  const noticeRef = useRef<HTMLDivElement>(null);
+  const [update, setUpdate] = useState<AppointmentUpdate | null>(initialUpdate);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState(false);
+  const updateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!patientId) return;
-    appointmentService.getForPatient(patientId, id).then((appointment) =>
-      setState(
-        appointment
-          ? { kind: "ready", appointment, status: getAppointmentStatus(appointment, new Date()) }
-          : { kind: "missing" },
-      ),
-    );
+    if (patientId) loadAppointment(patientId, id).then(setState);
   }, [patientId, id]);
 
+  // Сообщение о переносе показано — убираем ?updated= из адреса, чтобы не повторять его после обновления.
   useEffect(() => {
-    if (actionNotice) noticeRef.current?.focus();
-  }, [actionNotice]);
+    if (initialUpdate) window.history.replaceState(window.history.state, "", routes.appointment(id));
+  }, [initialUpdate, id]);
+
+  // Запись изменилась — фокус на сообщение, чтобы его сразу прочитали.
+  const ready = state.kind === "ready";
+  useEffect(() => {
+    if (update && ready) updateRef.current?.focus();
+  }, [update, ready]);
+
+  const closeConfirm = useCallback(() => {
+    setConfirmOpen(false);
+    setCancelError(false);
+  }, []);
+
+  const cancel = async () => {
+    if (!patientId) return;
+    setCancelling(true);
+    setCancelError(false);
+    const result = await appointmentService.cancel(patientId, id);
+    setCancelling(false);
+    if (!result.ok) return setCancelError(true);
+    setConfirmOpen(false);
+    setUpdate("cancelled");
+    setState(await loadAppointment(patientId, id));
+  };
 
   const back = (
     <Link
@@ -96,7 +128,7 @@ export function AppointmentDetails({ id, references }: { id: string; references:
     );
   }
 
-  const { appointment, status } = state;
+  const { appointment, status, actions } = state;
   const view = describeAppointment(appointment, references);
   const title = appointment.type === "lab" ? "Запись на анализы" : view.title;
 
@@ -104,6 +136,28 @@ export function AppointmentDetails({ id, references }: { id: string; references:
     <Container className="pt-[18px] pb-10 md:pt-10 md:pb-16">
       <div className="max-w-[720px]">
         {back}
+        {update && (
+          <div ref={updateRef} tabIndex={-1} className="mt-3 outline-none md:mt-4">
+            <Notice
+              tone="info"
+              icon="check-circle"
+              role="status"
+              title={update === "cancelled" ? "Запись отменена" : "Запись перенесена"}
+              description={
+                update === "cancelled"
+                  ? "Запись осталась в истории. Время освободилось — при необходимости запишитесь заново."
+                  : `Новое время — ${formatLongDate(appointment.date)}, ${appointment.time}. Остальное без изменений.`
+              }
+              action={
+                update === "cancelled" && (
+                  <Button href={appointment.type === "lab" ? routes.lab : routes.booking} variant="secondary" size="sm">
+                    Записаться снова
+                  </Button>
+                )
+              }
+            />
+          </div>
+        )}
         <div className="mt-3 flex flex-col gap-2 md:mt-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-3">
           <h1 className="text-[22px] leading-7 font-bold text-(--color-text-primary) md:text-[30px] md:leading-[38px]">
             {title}
@@ -159,37 +213,68 @@ export function AppointmentDetails({ id, references }: { id: string; references:
           </DetailRow>
         </dl>
 
-        {status === "upcoming" && (
-          <>
-            <div className="mt-4 flex flex-col gap-2 md:mt-5 md:flex-row md:items-center md:gap-6">
-              <Button variant="secondary" fullWidth className="md:w-auto" onClick={() => setActionNotice(true)}>
+        {(actions.canCancel || actions.canReschedule) && (
+          <div className="mt-4 flex flex-col gap-2 md:mt-5 md:flex-row md:items-center md:gap-6">
+            {actions.canReschedule && (
+              <Button href={routes.rescheduleAppointment(appointment.id)} variant="secondary" fullWidth className="md:w-auto">
                 Перенести запись
               </Button>
+            )}
+            {actions.canCancel && (
               <button
                 type="button"
-                onClick={() => setActionNotice(true)}
+                onClick={() => setConfirmOpen(true)}
                 className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 self-center rounded-(--radius-s) px-0.5 text-[15px] font-semibold text-(--color-text-error) hover:underline md:self-auto"
               >
                 <Icon name="trash" size={17} />
                 Отменить запись
               </button>
-            </div>
-            {actionNotice && (
-              <div ref={noticeRef} tabIndex={-1} className="mt-4 outline-none">
-                <Notice
-                  tone="neutral"
-                  icon="alert"
-                  role="status"
-                  title="Пока недоступно на сайте"
-                  description="Перенос и отмена записи онлайн появятся в следующей версии. Ваша запись остаётся в силе."
-                />
-              </div>
             )}
-          </>
+          </div>
         )}
+        {actions.restrictionReason && (
+          <p className="mt-4 text-[14px] leading-5 text-(--color-text-secondary)">{actions.restrictionReason}</p>
+        )}
+
+        <Dialog
+          open={confirmOpen}
+          onClose={closeConfirm}
+          busy={cancelling}
+          title="Отменить запись?"
+          description={
+            <>
+              <p>
+                {appointment.type === "lab" ? "Запись на анализы" : "Приём"} {formatDayMonthFromIso(appointment.date)},{" "}
+                {appointment.time} будет {appointment.type === "lab" ? "отменена" : "отменён"}. Отменённую запись нельзя
+                восстановить — при необходимости можно будет записаться заново.
+              </p>
+              {cancelError && (
+                <p role="alert" className="mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-(--color-text-error)">
+                  <Icon name="alert" size={14} />
+                  Не удалось отменить запись. Попробуйте ещё раз.
+                </p>
+              )}
+            </>
+          }
+        >
+          <Button variant="secondary" autoFocus disabled={cancelling} onClick={closeConfirm} fullWidth className="md:w-auto">
+            Не отменять
+          </Button>
+          <Button variant="destructive" loading={cancelling} onClick={cancel} fullWidth className="md:w-auto">
+            Да, отменить запись
+          </Button>
+        </Dialog>
       </div>
     </Container>
   );
+}
+
+/** Запись пациента, её статус и доступные действия. */
+async function loadAppointment(patientId: string, id: string): Promise<LoadState> {
+  const appointment = await appointmentService.getForPatient(patientId, id);
+  if (!appointment) return { kind: "missing" };
+  const actions = await appointmentService.getActions(appointment);
+  return { kind: "ready", appointment, status: getAppointmentStatus(appointment, new Date()), actions };
 }
 
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {

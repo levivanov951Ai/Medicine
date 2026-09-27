@@ -29,26 +29,24 @@ _Обновлено: 2026-09-27_
 - Appointment Details (`/account/appointments/[id]`)
 - Patient Profile (`/account/profile`)
 - MOCK Appointment Persistence (записи переживают обновление, выход и повторный вход)
+- Cancel Appointment (окно подтверждения, запись остаётся в истории, время освобождается)
+- Reschedule Appointment (`/account/appointments/[id]/reschedule`: новое время с резервом 5 минут)
+- Promotions (`/promo`)
+- About (`/about`)
+- Contacts (`/contacts`, заглушка карты)
+- Legal pages (`/legal/[slug]`, тексты — после предоставления клиникой)
+- Lab Packages (`/lab/packages`, программа добавляет анализы в выбранные)
 - Responsive- и accessibility-проверки, lint / typecheck / build
 
 ## Текущее состояние
 
-Главная, публичные каталоги, обе записи, вход и личный кабинет работают на desktop и mobile.
+Публичная часть сайта и личный кабинет готовы на desktop и mobile, заглушек в навигации нет.
 Всё на MOCK: расписание, код подтверждения, пациенты и записи хранятся в браузере, CRM не подключена.
-Защита кабинета — только клиентская демонстрация.
+Правила отмены и переноса — демо (PRODUCTION RULE UNKNOWN). Защита кабинета — только клиентская демонстрация.
 Короткая сводка для новой сессии — `docs/SESSION_HANDOFF.md`.
 
-## Следующий этап — Appointment Management + Secondary Pages
-
-- Отмена записи (Cancel appointment)
-- Перенос записи (Reschedule appointment)
-- Акции (Promotions)
-- Контакты (Contacts)
-- О клинике (About)
-- Правовые страницы — шаблоны (legal templates)
-- Комплексы анализов / Check-ups — при необходимости
+## Следующий этап — CRM Integration Preparation + CRM Integration
 
 ## Позже
 
-- Интеграция с CRM
 - Production hardening

@@ -1,4 +1,5 @@
 import type { IsoDate } from "@/lib/dates";
+import type { Appointment } from "@/types/appointment";
 
 /**
  * Контракт сервиса записи. Сейчас его реализует mock-booking-service.ts,
@@ -63,6 +64,19 @@ export type CreateAppointmentResult =
   | { ok: true; appointmentId: string }
   | { ok: false; reason: "expired" | "unavailable" };
 
+export interface RescheduleAppointmentInput {
+  patientId: string;
+  appointmentId: string;
+  /** Для чьего расписания резервировали время: того же врача или процедурного кабинета. */
+  target: BookingTarget;
+  /** Резерв нового времени — тот же механизм, что при записи (5 минут). */
+  reservation: Reservation;
+}
+
+export type RescheduleAppointmentResult =
+  | { ok: true; appointment: Appointment }
+  | { ok: false; reason: "expired" | "unavailable" | "not-allowed" };
+
 export interface BookingService {
   /** На сколько дней вперёд открыта запись. */
   readonly horizonDays: number;
@@ -78,6 +92,13 @@ export interface BookingService {
    * запись сразу появляется в кабинете пациента (appointmentService).
    */
   createAppointment(input: CreateAppointmentInput): Promise<CreateAppointmentResult>;
+  /**
+   * Перенести запись на зарезервированное время. Услуга, врач, анализы и цена
+   * не меняются. При любой ошибке запись остаётся на прежнем времени.
+   * Атомарность (прежнее время освобождается ровно тогда, когда занято новое)
+   * в production обеспечит сервер / CRM; MOCK её имитирует.
+   */
+  rescheduleAppointment(input: RescheduleAppointmentInput): Promise<RescheduleAppointmentResult>;
 }
 
 /** Резерв слота — 5 минут (PD-02). */

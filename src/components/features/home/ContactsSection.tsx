@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { Icon } from "@/components/ui/Icon";
+import { MapPlaceholder } from "@/components/ui/MapPlaceholder";
 import { PLACEHOLDER, telHref } from "@/lib/placeholders";
 import type { ClinicInfo } from "@/types/clinic";
 import type { IconName } from "@/types/icon";
@@ -22,14 +23,11 @@ export function ContactsSection({ clinic }: ContactsSectionProps) {
         <SectionHeading id="contacts-title" eyebrow="06 · Как добраться" title="Контакты" onTinted />
 
         <div className="lg:flex lg:gap-12">
-          {/* Заглушка карты. Подпись — --color-text-secondary (6.76 на surface), см. CONTRAST_AUDIT.md */}
-          <div
-            aria-hidden="true"
-            className="mb-5 flex h-[200px] items-center justify-center gap-2 rounded-(--radius-l) border border-(--color-border-decorative) bg-(--color-surface-page) text-[14px] text-(--color-text-secondary) md:h-[320px] lg:mb-0 lg:flex-1"
-          >
-            <Icon name="pin" size={20} />
-            <span>Карта проезда</span>
-          </div>
+          <MapPlaceholder
+            label="Карта проезда"
+            variant="section"
+            className="mb-5 h-[200px] md:h-[320px] lg:mb-0 lg:flex-1"
+          />
 
           <address className="flex flex-col not-italic lg:w-[360px] lg:shrink-0 lg:gap-[22px]">
             <ContactItem icon="pin" title="Адрес">

@@ -5,7 +5,8 @@ import { cn } from "@/lib/cn";
 import { selectedAnalyses, useSelectedAnalysisIds } from "@/lib/selected-analyses";
 
 interface AnalysisSelectButtonProps {
-  analysisId: string;
+  /** Один анализ — или весь состав комплексной программы. */
+  analysisId: string | readonly string[];
   /** Название — для скринридера: «Добавить: Общий анализ крови». */
   title: string;
   /** sm 36px — строки каталога; md 44px — страница анализа. */
@@ -17,15 +18,21 @@ interface AnalysisSelectButtonProps {
  * Переключатель «Добавить» / «Добавлено» (Analyses-*, Analysis-*.dc.html).
  * Кнопка с aria-pressed: повторное нажатие убирает анализ из выбранных.
  * Выбор одного анализа не открывает отдельный список (PD-04).
+ *
+ * Для комплексной программы (PD-05) передаётся весь состав: «Добавить» кладёт
+ * в выбранные анализы недостающие, «Добавлено» — когда выбран весь состав,
+ * повторное нажатие убирает состав. Отдельной «корзины программ» нет.
  */
 export function AnalysisSelectButton({ analysisId, title, size = "sm", className }: AnalysisSelectButtonProps) {
-  const selected = useSelectedAnalysisIds().includes(analysisId);
+  const selectedIds = useSelectedAnalysisIds();
+  const ids = typeof analysisId === "string" ? [analysisId] : analysisId;
+  const selected = ids.length > 0 && ids.every((id) => selectedIds.includes(id));
 
   return (
     <button
       type="button"
       aria-pressed={selected}
-      onClick={() => selectedAnalyses.toggle(analysisId)}
+      onClick={() => (selected ? selectedAnalyses.removeMany(ids) : selectedAnalyses.addMany(ids))}
       className={cn(
         "inline-flex shrink-0 cursor-pointer items-center justify-center gap-[7px] rounded-(--radius-m) border-[1.5px] font-semibold whitespace-nowrap transition-colors",
         // Ширина по «Добавлено» — при переключении соседние колонки не сдвигаются.

@@ -2,6 +2,7 @@ import type {
   Analysis,
   Category,
   Doctor,
+  LabPackage,
   Promotion,
   QuickLink,
   Service,
@@ -36,6 +37,8 @@ export interface DataSource {
   getAnalysisCategories(): Promise<Category[]>;
   getAnalyses(): Promise<Analysis[]>;
   getAnalysisById(id: string): Promise<Analysis | null>;
+  /** Комплексные программы (PD-05). */
+  getLabPackages(): Promise<LabPackage[]>;
 
   getPromotions(): Promise<Promotion[]>;
   getQuickLinks(): Promise<QuickLink[]>;

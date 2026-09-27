@@ -78,9 +78,15 @@ export const selectedAnalyses = {
     const current = getSnapshot();
     if (current.includes(id)) write(current.filter((item) => item !== id));
   },
-  toggle(id: string) {
-    if (getSnapshot().includes(id)) selectedAnalyses.remove(id);
-    else selectedAnalyses.add(id);
+  /** Добавить несколько (комплексная программа). Уже выбранные не дублируются. */
+  addMany(ids: readonly string[]) {
+    const current = getSnapshot();
+    const missing = ids.filter((id, index) => !current.includes(id) && ids.indexOf(id) === index);
+    if (missing.length > 0) write([...current, ...missing]);
+  },
+  removeMany(ids: readonly string[]) {
+    const current = getSnapshot();
+    if (ids.some((id) => current.includes(id))) write(current.filter((item) => !ids.includes(item)));
   },
   clear() {
     if (getSnapshot().length > 0) write([]);
