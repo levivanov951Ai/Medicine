@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { OtpCodeField } from "@/components/features/auth/OtpCodeField";
+import { OtpCodeField, OtpFailure } from "@/components/features/auth/OtpCodeField";
 import { useOtpFlow } from "@/components/features/auth/use-otp-flow";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -11,6 +11,7 @@ import { LoadingState } from "@/components/ui/StateBlocks";
 import { authSession, useAuth } from "@/lib/auth-session";
 import { maskPhone, phoneValidationError } from "@/lib/phone";
 import type { PatientContact } from "@/services/booking/types";
+import { serviceErrorMessage } from "@/services/errors";
 import { StepTitle } from "./BookingFrame";
 
 interface PatientStepProps {
@@ -96,9 +97,14 @@ export function PatientStep({ initial, initiallyVerified = false, onComplete }: 
           setErrors({ name: problem });
           if (problem) return;
           setSavingName(true);
-          const patient = await authSession.updateProfile({ name });
-          setSavingName(false);
-          onComplete({ name: patient.name ?? name.trim(), phoneDigits });
+          try {
+            const patient = await authSession.updateProfile({ name });
+            onComplete({ name: patient.name ?? name.trim(), phoneDigits });
+          } catch (error) {
+            setErrors({ name: serviceErrorMessage(error) });
+          } finally {
+            setSavingName(false);
+          }
         }}
         className="flex max-w-[560px] flex-col gap-5"
       >
@@ -185,6 +191,7 @@ export function PatientStep({ initial, initiallyVerified = false, onComplete }: 
           <Button type="submit" size="md" loading={phase === "sending"} className="w-full md:w-auto md:self-start">
             Получить код
           </Button>
+          {flow.failure && <OtpFailure message={flow.failure} />}
           <p className="text-[13px] leading-[19px] text-(--color-text-secondary)">
             Код проверится автоматически, как только введёте последнюю цифру. Если вы у нас впервые, профиль создастся
             сам.

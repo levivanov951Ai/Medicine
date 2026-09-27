@@ -6,7 +6,7 @@ import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Icon } from "@/components/ui/Icon";
-import { EmptyState, LoadingState, Notice } from "@/components/ui/StateBlocks";
+import { EmptyState, ErrorState, LoadingState, Notice } from "@/components/ui/StateBlocks";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/lib/auth-session";
 import { formatCompactDate, formatDayMonthFromIso, formatLongDate } from "@/lib/dates";
@@ -15,12 +15,14 @@ import { countLabel, WORDS } from "@/lib/plural";
 import { routes } from "@/lib/routes";
 import type { AppointmentReferences } from "@/services/account";
 import { appointmentService, getAppointmentStatus } from "@/services/appointments";
+import { serviceErrorMessage } from "@/services/errors";
 import type { Appointment, AppointmentActions, AppointmentStatus } from "@/types/appointment";
 import { describeAppointment } from "./appointment-view";
 
 type LoadState =
   | { kind: "loading" }
   | { kind: "missing" }
+  | { kind: "error"; message: string }
   | { kind: "ready"; appointment: Appointment; status: AppointmentStatus; actions: AppointmentActions };
 
 /** Что изменилось — сообщение после отмены или переноса. */
@@ -52,9 +54,13 @@ export function AppointmentDetails({ id, references, initialUpdate = null }: App
   const [cancelError, setCancelError] = useState(false);
   const updateRef = useRef<HTMLDivElement>(null);
 
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (patientId) loadAppointment(patientId, id).then(setState);
-  }, [patientId, id]);
+    if (!patientId) return;
+    loadAppointment(patientId, id)
+      .then(setState)
+      .catch((error: unknown) => setState({ kind: "error", message: serviceErrorMessage(error) }));
+  }, [patientId, id, attempt]);
 
   // Сообщение о переносе показано — убираем ?updated= из адреса, чтобы не повторять его после обновления.
   useEffect(() => {
@@ -76,12 +82,22 @@ export function AppointmentDetails({ id, references, initialUpdate = null }: App
     if (!patientId) return;
     setCancelling(true);
     setCancelError(false);
-    const result = await appointmentService.cancel(patientId, id);
+    let result;
+    try {
+      result = await appointmentService.cancel(patientId, id);
+    } catch {
+      result = null;
+    }
     setCancelling(false);
-    if (!result.ok) return setCancelError(true);
+    if (!result?.ok) return setCancelError(true);
     setConfirmOpen(false);
     setUpdate("cancelled");
-    setState(await loadAppointment(patientId, id));
+    // Отмена прошла; не удалось перечитать запись — показываем её с новым статусом.
+    setState(
+      await loadAppointment(patientId, id).catch(
+        (): LoadState => ({ kind: "ready", appointment: result.appointment, status: "cancelled", actions: NO_ACTIONS }),
+      ),
+    );
   };
 
   const back = (
@@ -100,6 +116,33 @@ export function AppointmentDetails({ id, references, initialUpdate = null }: App
         <div className="max-w-[720px]">
           {back}
           <LoadingState label="Загружаем запись" className="mt-4" />
+        </div>
+      </Container>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <Container className="pt-5 pb-10 md:pt-10 md:pb-16">
+        <div className="max-w-[720px]">
+          {back}
+          <ErrorState
+            className="mt-4"
+            title="Не удалось загрузить запись"
+            description={state.message}
+            action={
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setState({ kind: "loading" });
+                  setAttempt((value) => value + 1);
+                }}
+              >
+                Повторить
+              </Button>
+            }
+          />
         </div>
       </Container>
     );
@@ -268,6 +311,8 @@ export function AppointmentDetails({ id, references, initialUpdate = null }: App
     </Container>
   );
 }
+
+const NO_ACTIONS: AppointmentActions = { canCancel: false, canReschedule: false, restrictionReason: null };
 
 /** Запись пациента, её статус и доступные действия. */
 async function loadAppointment(patientId: string, id: string): Promise<LoadState> {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { EmptyState, LoadingState } from "@/components/ui/StateBlocks";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/StateBlocks";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/lib/auth-session";
 import { formatCompactDate, formatShortDate } from "@/lib/dates";
@@ -14,6 +14,7 @@ import { countLabel } from "@/lib/plural";
 import { routes } from "@/lib/routes";
 import type { AppointmentReferences } from "@/services/account";
 import { appointmentService, compareByVisit, getAppointmentStatus } from "@/services/appointments";
+import { serviceErrorMessage } from "@/services/errors";
 import type { Appointment, AppointmentStatus } from "@/types/appointment";
 import { describeAppointment } from "./appointment-view";
 
@@ -32,16 +33,21 @@ export function AppointmentsDashboard({ references }: { references: AppointmentR
   const auth = useAuth();
   const patient = auth.status === "authenticated" ? auth.patient : null;
   const [loaded, setLoaded] = useState<Loaded | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   const patientId = patient?.id;
   useEffect(() => {
     if (!patientId) return;
-    appointmentService.listForPatient(patientId).then((appointments) => {
-      // «Сейчас» фиксируется при загрузке: по нему делятся будущие и прошедшие.
-      const now = new Date();
-      setLoaded({ items: appointments.map((appointment) => ({ appointment, status: getAppointmentStatus(appointment, now) })) });
-    });
-  }, [patientId]);
+    appointmentService
+      .listForPatient(patientId)
+      .then((appointments) => {
+        // «Сейчас» фиксируется при загрузке: по нему делятся будущие и прошедшие.
+        const now = new Date();
+        setLoaded({ items: appointments.map((appointment) => ({ appointment, status: getAppointmentStatus(appointment, now) })) });
+      })
+      .catch((error: unknown) => setFailure(serviceErrorMessage(error)));
+  }, [patientId, attempt]);
 
   if (!patient) return null;
 
@@ -76,7 +82,26 @@ export function AppointmentsDashboard({ references }: { references: AppointmentR
         )}
       </div>
 
-      {loaded === null && <LoadingState label="Загружаем записи" className="mt-6 md:mt-7" />}
+      {loaded === null && !failure && <LoadingState label="Загружаем записи" className="mt-6 md:mt-7" />}
+      {failure && (
+        <ErrorState
+          className="mt-6 md:mt-7"
+          title="Не удалось загрузить записи"
+          description={failure}
+          action={
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setFailure(null);
+                setAttempt((value) => value + 1);
+              }}
+            >
+              Повторить
+            </Button>
+          }
+        />
+      )}
 
       {empty && (
         <div className="mt-6 rounded-(--radius-l) bg-(--color-surface-page) px-4 py-8 md:mt-7 md:py-12">

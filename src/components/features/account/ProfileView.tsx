@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { authSession, useAuth } from "@/lib/auth-session";
 import { maskPhone } from "@/lib/phone";
+import { serviceErrorMessage } from "@/services/errors";
 
 /**
  * Профиль (Cabinet-Profile-*): имя, телефон, выход.
@@ -50,8 +51,14 @@ export function ProfileView() {
       return;
     }
     setSaving(true);
-    await authSession.updateProfile({ name: draft });
-    setSaving(false);
+    try {
+      await authSession.updateProfile({ name: draft });
+    } catch (failure) {
+      setError(serviceErrorMessage(failure));
+      return;
+    } finally {
+      setSaving(false);
+    }
     setEditing(false);
     setSaved(true);
   };

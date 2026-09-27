@@ -32,7 +32,8 @@ export function useBookingMechanics<T extends DraftWithReservation>(
   const dropReservation = useCallback(
     (notice: BookingNotice) => {
       const current = store.get();
-      if (current?.reservation) bookingService.releaseReservation(current.reservation.id);
+      // Освобождение — «по возможности»: не удалось, резерв истечёт сам.
+      if (current?.reservation) bookingService.releaseReservation(current.reservation.id).catch(() => undefined);
       patch({ reservation: undefined, time: undefined, step: "datetime", notice } as Partial<T>);
     },
     [store, patch],
@@ -52,8 +53,14 @@ export function useBookingMechanics<T extends DraftWithReservation>(
     async (slot: SlotRef): Promise<boolean> => {
       if (!target) return false;
       const previous = store.get()?.reservation;
-      if (previous) await bookingService.releaseReservation(previous.id);
-      const result = await bookingService.reserveSlot(target, slot);
+      if (previous) await bookingService.releaseReservation(previous.id).catch(() => undefined);
+      let result;
+      try {
+        result = await bookingService.reserveSlot(target, slot);
+      } catch {
+        patch({ reservation: undefined, time: undefined, notice: "service-error" } as Partial<T>);
+        return false;
+      }
       if (result.ok) {
         patch({ reservation: result.reservation, date: slot.date, time: slot.time, notice: undefined } as Partial<T>);
         return true;

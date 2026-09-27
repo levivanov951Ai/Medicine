@@ -23,7 +23,9 @@ export type BookingNotice =
   | "unknown-service"
   | "unknown-doctor"
   | "service-not-offered"
-  | "requested-slot-unavailable";
+  | "requested-slot-unavailable"
+  /** Сбой источника данных при резерве (нет сети, CRM не ответила). */
+  | "service-error";
 
 interface DraftBase {
   id: string;

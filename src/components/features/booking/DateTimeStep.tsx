@@ -283,6 +283,17 @@ function renderNotice(notice: BookingNotice | undefined, reservation: Reservatio
       />
     );
   }
+  if (notice === "service-error" && !reservation) {
+    return (
+      <Notice
+        tone="warning"
+        icon="alert"
+        role="alert"
+        title="Не удалось зарезервировать время"
+        description="Нет связи с сервером. Проверьте интернет и выберите время ещё раз."
+      />
+    );
+  }
   if ((notice === "slot-unavailable" || notice === "requested-slot-unavailable") && !reservation) {
     return (
       <Notice

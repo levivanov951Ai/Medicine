@@ -11,6 +11,7 @@
 | Токены — единственный канонический источник | [`design/tokens.css`](design/tokens.css) |
 | Визуальный source of truth | Финальный Claude Design (Design v1) |
 | Решения по доступности и контрасту | [`docs/CONTRAST_AUDIT.md`](docs/CONTRAST_AUDIT.md) |
+| Подготовка к CRM: требования, вопросы, порядок | [`docs/CRM_INTEGRATION.md`](docs/CRM_INTEGRATION.md) |
 
 При конфликте — не угадывать, спросить пользователя.
 
@@ -22,14 +23,17 @@ Next.js (App Router) · TypeScript · React · Tailwind CSS v4 · Inter (`next/f
 
 - Переиспользуемые компоненты: `src/components/ui`, `layout`, `features`.
 - MOCK-данные отдельно от JSX: `src/data/mock/`. Факты о клинике: `src/data/clinic.ts`.
-- Поток данных: **UI → `src/services/*` → `DataSource` → источник данных**. Переключение MOCK → CRM — `src/services/source.ts`.
-- CRM подключается позже. **Не придумывать API и схему CRM**, не создавать backend/БД.
+- Поток данных: **UI → `src/services/*` → реализация по `DATA_SOURCE`** (`mock` | `crm`, `src/services/config.ts`). Четыре сервиса: `dataSource`, `bookingService`, `authService`, `appointmentService`.
+- CRM подключается позже. **Не придумывать API и схему CRM**, не создавать backend/БД. Единственный источник о CRM — её реальная документация (см. `docs/CRM_INTEGRATION.md`).
+- Сбои источника данных — `ServiceError` (`src/services/errors.ts`), бизнес-исходы — `{ ok: false, reason }`. Сырые ответы CRM в компоненты не передавать.
+- Секреты — только серверные переменные окружения, никогда `NEXT_PUBLIC_*`.
 - Не использовать реальные данные пациентов.
 - MOCK не выдавать за факты клиники; слово «MOCK» в UI не показывать. UNKNOWN — `null` и плейсхолдер, не выдумывать.
 - В компонентах только semantic-токены. Primitive HEX в JSX/TSX/CSS не хардкодить, вторую палитру не создавать, примитивы без согласования не менять.
 - Один MOCK-набор на сущность (PD-25): врачи, услуги, анализы, акции — в `src/data/mock/`, без версий под отдельные страницы.
 - Выбранные анализы — `src/lib/selected-analyses.ts` (браузер, localStorage). С CRM не связаны.
 - Запись: UI → `src/services/booking` (`bookingService`) → MOCK-расписание `src/data/mock/availability.ts`. Черновик записи — `src/lib/booking-draft.ts` (sessionStorage). Настоящих смс и CRM нет.
+- Списки `/services`, `/doctors`, `/lab` и их `loading.tsx` лежат в route group `(catalog)`. Не поднимать `loading.tsx` выше: он накроет страницы деталей, и `notFound()` ответит HTTP 200 вместо 404.
 - `cn()` не разрешает конфликты Tailwind-классов: не переопределять базовые классы компонента через `className`, а добавлять вариант (prop).
 
 ## Проверки после значимых изменений

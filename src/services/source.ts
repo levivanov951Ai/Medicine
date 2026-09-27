@@ -1,8 +1,9 @@
+import { selectImplementation } from "./config";
 import type { DataSource } from "./data-source";
 import { mockSource } from "./mock-source";
 
 /**
- * Единственная точка выбора источника данных.
- * При подключении CRM здесь меняется одна строка.
+ * Каталог и сведения о клинике: услуги, врачи, анализы, программы, акции.
+ * Реализация выбирается переключателем DATA_SOURCE (services/config.ts).
  */
-export const dataSource: DataSource = mockSource;
+export const dataSource: DataSource = selectImplementation("dataSource", { mock: mockSource });

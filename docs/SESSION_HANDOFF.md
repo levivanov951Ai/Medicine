@@ -1,6 +1,6 @@
 # SESSION HANDOFF — СМЛаб
 
-_2026-09-27. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–16)._
+_2026-09-27. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–17); CRM — `docs/CRM_INTEGRATION.md`._
 
 ## Current state
 
@@ -43,11 +43,12 @@ Next.js App Router · TypeScript · Tailwind CSS v4 · React · канониче
 - **Booking** — `bookingService` (`src/services/booking`) → `src/data/mock/availability.ts`; черновик — `src/lib/booking-draft.ts` (sessionStorage). Занятое время — из Appointment Store.
 - **Selected analyses** — `src/lib/selected-analyses.ts` (localStorage). Комплексная программа (`LabPackage`, только `analysisIds`) добавляет в него свой состав без дублей.
 - **Акции** — `src/services/promotions.ts`: действующие, со ссылкой на услугу / анализ / программу. **Правовые документы** — `src/data/legal.ts`. **Карта** — `MapPlaceholder`.
-- Переключение MOCK → CRM: `source.ts`, `booking/index.ts`, `auth/index.ts`, `appointments/index.ts` — по одной строке.
+- **Переключение MOCK → CRM** — `DATA_SOURCE=mock|crm` (`src/services/config.ts`, `selectImplementation`); `crm` без реализации останавливает сборку.
+- **Ошибки** — `ServiceError` + `serviceErrorMessage` (`src/services/errors.ts`); бизнес-исходы — `{ ok: false, reason }`.
 
 ## Next task
 
-CRM Integration Preparation + CRM Integration: сверить модели и контракты сервисов (`DataSource`, `bookingService`, `authService`, `appointmentService`) с CRM, заменить MOCK-реализации.
+CRM Integration — **только после** получения документации CRM и тестового доступа. Что запросить и в каком порядке подключать — `docs/CRM_INTEGRATION.md` (разделы 12–13). Без документации не писать CRM-клиент, маршруты и DTO.
 
 ## Known production blockers
 

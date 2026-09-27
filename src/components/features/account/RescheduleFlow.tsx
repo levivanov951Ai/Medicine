@@ -11,7 +11,7 @@ import { ReservationTimer } from "@/components/features/booking/ReservationTimer
 import { useBookingMechanics } from "@/components/features/booking/use-booking-flow";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
-import { EmptyState, LoadingState, Notice } from "@/components/ui/StateBlocks";
+import { EmptyState, ErrorState, LoadingState, Notice } from "@/components/ui/StateBlocks";
 import { authSession, useAuth } from "@/lib/auth-session";
 import { rescheduleDraftStore, type RescheduleDraft, type RescheduleStep } from "@/lib/booking-draft";
 import { formatLongDate, formatShortDate } from "@/lib/dates";
@@ -21,12 +21,14 @@ import type { AppointmentReferences } from "@/services/account";
 import { appointmentService } from "@/services/appointments";
 import { bookingService } from "@/services/booking";
 import type { BookingTarget } from "@/services/booking/types";
+import { serviceErrorMessage } from "@/services/errors";
 import type { Appointment } from "@/types/appointment";
 import { describeAppointment } from "./appointment-view";
 
 type Load =
   | { kind: "loading" }
   | { kind: "missing" }
+  | { kind: "error"; message: string }
   | { kind: "not-allowed"; appointment: Appointment; reason: string | null }
   | { kind: "ready"; appointment: Appointment };
 
@@ -47,6 +49,7 @@ export function RescheduleFlow({ id, references }: { id: string; references: App
   const patientId = auth.status === "authenticated" ? auth.patient.id : null;
   const [load, setLoad] = useState<Load>({ kind: "loading" });
   const [failure, setFailure] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const stored = rescheduleDraftStore.useValue();
   const draft = stored?.appointmentId === id ? stored : null;
 
@@ -61,8 +64,8 @@ export function RescheduleFlow({ id, references }: { id: string; references: App
         rescheduleDraftStore.set({ appointmentId: id, step: "datetime" });
       }
       setLoad({ kind: "ready", appointment });
-    });
-  }, [patientId, id]);
+    }).catch((error: unknown) => setLoad({ kind: "error", message: serviceErrorMessage(error) }));
+  }, [patientId, id, attempt]);
 
   const appointment = load.kind === "ready" ? load.appointment : null;
   const target: BookingTarget | null = appointment
@@ -73,10 +76,34 @@ export function RescheduleFlow({ id, references }: { id: string; references: App
   const { patch, reserve, dropReservation } = useBookingMechanics(rescheduleDraftStore, draft, target, WITH_RESERVATION);
 
   const backToDetails = () => {
-    if (draft?.reservation) bookingService.releaseReservation(draft.reservation.id);
+    if (draft?.reservation) bookingService.releaseReservation(draft.reservation.id).catch(() => undefined);
     rescheduleDraftStore.set(null);
     router.push(routes.appointment(id));
   };
+
+  if (load.kind === "error") {
+    return (
+      <Container className="pt-5 pb-10 md:pt-10 md:pb-16">
+        <ErrorState
+          className="mx-auto max-w-[560px]"
+          title="Не удалось загрузить запись"
+          description={load.message}
+          action={
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setLoad({ kind: "loading" });
+                setAttempt((value) => value + 1);
+              }}
+            >
+              Повторить
+            </Button>
+          }
+        />
+      </Container>
+    );
+  }
 
   if (load.kind === "missing" || load.kind === "not-allowed") {
     return (

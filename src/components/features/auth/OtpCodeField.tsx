@@ -42,6 +42,7 @@ export function OtpCodeField({ flow, hint }: OtpCodeFieldProps) {
           autoFocus
         />
         <div id={statusId} aria-live="polite">
+          {flow.failure && phase === "code" && <OtpFailure message={flow.failure} />}
           {phase === "invalid" && (
             <p className="flex items-center gap-1.5 text-[13px] leading-[18px] text-(--color-text-error)">
               <Icon name="alert" size={14} />
@@ -99,6 +100,16 @@ export function OtpCodeField({ flow, hint }: OtpCodeFieldProps) {
         />
       )}
     </div>
+  );
+}
+
+/** Сбой отправки или проверки кода (нет сети, сервер не ответил). */
+export function OtpFailure({ message }: { message: string }) {
+  return (
+    <p role="alert" className="flex items-start gap-1.5 text-[13px] leading-[18px] text-(--color-text-error)">
+      <Icon name="alert" size={14} className="mt-0.5" />
+      {message}
+    </p>
   );
 }
 

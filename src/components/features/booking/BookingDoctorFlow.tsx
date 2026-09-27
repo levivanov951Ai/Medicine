@@ -102,7 +102,7 @@ export function BookingDoctorFlow({ services, categories, doctors, clinicAddress
   }
 
   const releaseAndPatch = (changes: Partial<DoctorDraft>) => {
-    if (draft.reservation) bookingService.releaseReservation(draft.reservation.id);
+    if (draft.reservation) bookingService.releaseReservation(draft.reservation.id).catch(() => undefined);
     patch({ reservation: undefined, date: undefined, time: undefined, notice: undefined, ...changes });
   };
 

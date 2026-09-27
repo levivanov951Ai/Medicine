@@ -9,7 +9,7 @@ import { LoadingState, Notice } from "@/components/ui/StateBlocks";
 import { useAuth } from "@/lib/auth-session";
 import { maskPhone, phoneValidationError } from "@/lib/phone";
 import { routes } from "@/lib/routes";
-import { OtpCodeField } from "./OtpCodeField";
+import { OtpCodeField, OtpFailure } from "./OtpCodeField";
 import { useOtpFlow } from "./use-otp-flow";
 
 interface LoginViewProps {
@@ -144,6 +144,7 @@ export function LoginView({ returnTo }: LoginViewProps) {
         <Button type="submit" fullWidth loading={flow.phase === "sending"}>
           Получить код
         </Button>
+        {flow.failure && <OtpFailure message={flow.failure} />}
       </form>
     );
   }

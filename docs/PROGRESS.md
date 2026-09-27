@@ -36,6 +36,7 @@ _Обновлено: 2026-09-27_
 - Contacts (`/contacts`, заглушка карты)
 - Legal pages (`/legal/[slug]`, тексты — после предоставления клиникой)
 - Lab Packages (`/lab/packages`, программа добавляет анализы в выбранные)
+- CRM Integration Preparation (аудит, требования и вопросы — `docs/CRM_INTEGRATION.md`; переключатель `DATA_SOURCE`; модель ошибок; настоящий 404)
 - Responsive- и accessibility-проверки, lint / typecheck / build
 
 ## Текущее состояние
@@ -45,7 +46,9 @@ _Обновлено: 2026-09-27_
 Правила отмены и переноса — демо (PRODUCTION RULE UNKNOWN). Защита кабинета — только клиентская демонстрация.
 Короткая сводка для новой сессии — `docs/SESSION_HANDOFF.md`.
 
-## Следующий этап — CRM Integration Preparation + CRM Integration
+## Следующий этап — CRM Integration
+
+Начинается **только после** получения реальной документации CRM и доступа к тестовой среде (что нужно — `docs/CRM_INTEGRATION.md`, разделы 12–13).
 
 ## Позже
 

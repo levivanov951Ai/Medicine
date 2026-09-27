@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { authSession, otpLength } from "@/lib/auth-session";
+import { serviceErrorMessage } from "@/services/errors";
 import type { Patient } from "@/types/patient";
 
 /**
@@ -29,6 +30,8 @@ export function useOtpFlow({ initiallyVerified = false, details, onVerified }: O
   const [sentTo, setSentTo] = useState("");
   const [resendAt, setResendAt] = useState(0);
   const [now, setNow] = useState(() => Date.now());
+  /** Сбой отправки или проверки (нет сети, сервер не ответил) — текст для пациента. */
+  const [failure, setFailure] = useState<string | null>(null);
 
   useEffect(() => {
     if (phase !== "code" && phase !== "invalid") return;
@@ -36,9 +39,17 @@ export function useOtpFlow({ initiallyVerified = false, details, onVerified }: O
     return () => window.clearInterval(id);
   }, [phase]);
 
-  const send = useCallback(async (phoneDigits: string) => {
+  const send = useCallback(async (phoneDigits: string, fallback: OtpPhase = "idle") => {
     setPhase("sending");
-    const { resendAfterSeconds } = await authSession.requestOtp(phoneDigits);
+    setFailure(null);
+    let resendAfterSeconds: number;
+    try {
+      ({ resendAfterSeconds } = await authSession.requestOtp(phoneDigits));
+    } catch (error) {
+      setFailure(serviceErrorMessage(error));
+      setPhase(fallback);
+      return;
+    }
     setSentTo(phoneDigits);
     setCode("");
     setNow(Date.now());
@@ -51,7 +62,17 @@ export function useOtpFlow({ initiallyVerified = false, details, onVerified }: O
     if (phase === "invalid") setPhase("code");
     if (value.length < otpLength) return;
     setPhase("verifying");
-    const result = await authSession.verifyOtp(sentTo, value, details?.());
+    setFailure(null);
+    let result;
+    try {
+      result = await authSession.verifyOtp(sentTo, value, details?.());
+    } catch (error) {
+      // Код не проверен из-за сбоя — даём ввести его ещё раз.
+      setFailure(serviceErrorMessage(error));
+      setCode("");
+      setPhase("code");
+      return;
+    }
     if (result.ok) {
       setPhase("verified");
       onVerified?.(result.patient);
@@ -64,17 +85,19 @@ export function useOtpFlow({ initiallyVerified = false, details, onVerified }: O
   const reset = useCallback(() => {
     setPhase("idle");
     setCode("");
+    setFailure(null);
   }, []);
 
   return {
     phase,
     code,
     sentTo,
+    failure,
     secondsLeft: Math.max(0, Math.ceil((resendAt - now) / 1000)),
     /** Ячейки кода на экране (после «Изменить» с уже подтверждённым номером — не нужны). */
     inCodePhase: phase === "code" || phase === "verifying" || phase === "invalid" || phase === "verified",
     send,
-    resend: () => send(sentTo),
+    resend: () => send(sentTo, "code"),
     changeCode,
     reset,
   };

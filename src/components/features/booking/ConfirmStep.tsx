@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { Notice } from "@/components/ui/StateBlocks";
 import { formatRub } from "@/lib/format";
 import type { Reservation } from "@/services/booking/types";
+import { serviceErrorMessage } from "@/services/errors";
 import { SmallPrice, type SummaryItem } from "./BookingSummary";
 import { StepTitle } from "./BookingFrame";
 import { ReservationTimer } from "./ReservationTimer";
@@ -41,6 +43,8 @@ export function ConfirmStep({
   confirmLabel = "Подтвердить запись",
 }: ConfirmStepProps) {
   const [submitting, setSubmitting] = useState(false);
+  // Сбой источника данных (нет сети, CRM не ответила) — не бизнес-исход, а исключение.
+  const [failure, setFailure] = useState<string | null>(null);
 
   return (
     <div className="flex flex-col gap-5">
@@ -111,12 +115,21 @@ export function ConfirmStep({
         loading={submitting}
         onClick={async () => {
           setSubmitting(true);
-          await onConfirm();
-          setSubmitting(false);
+          setFailure(null);
+          try {
+            await onConfirm();
+          } catch (error) {
+            setFailure(serviceErrorMessage(error));
+          } finally {
+            setSubmitting(false);
+          }
         }}
       >
         {confirmLabel}
       </Button>
+      {failure && (
+        <Notice tone="warning" icon="alert" role="alert" title="Не удалось подтвердить" description={failure} />
+      )}
       <p className="text-center text-[13px] text-(--color-text-secondary)">Оплата — в клинике, при визите.</p>
     </div>
   );

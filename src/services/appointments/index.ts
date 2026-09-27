@@ -1,11 +1,14 @@
+import { selectImplementation } from "../config";
 import { mockAppointmentService } from "./mock-appointment-store";
 import type { AppointmentService } from "./types";
 
 /**
- * Единственная точка выбора хранилища записей.
- * При подключении CRM здесь меняется одна строка.
+ * Записи пациента: список, детали, правила, отмена.
+ * Реализация выбирается переключателем DATA_SOURCE (services/config.ts).
  */
-export const appointmentService: AppointmentService = mockAppointmentService;
+export const appointmentService: AppointmentService = selectImplementation("appointmentService", {
+  mock: mockAppointmentService,
+});
 
 export type * from "./types";
 export { compareByVisit, getAppointmentStatus } from "./status";
