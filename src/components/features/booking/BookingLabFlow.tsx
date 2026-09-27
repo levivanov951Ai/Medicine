@@ -8,6 +8,7 @@ import { EmptyState, LoadingState, Notice } from "@/components/ui/StateBlocks";
 import { labDraftStore, newDraftId, syncDraftIdToUrl, type LabStep } from "@/lib/booking-draft";
 import { formatLongDate, formatShortDate } from "@/lib/dates";
 import { formatRub } from "@/lib/format";
+import { authSession } from "@/lib/auth-session";
 import { maskPhone } from "@/lib/phone";
 import { countLabel, WORDS } from "@/lib/plural";
 import { routes } from "@/lib/routes";
@@ -239,10 +240,13 @@ export function BookingLabFlow({ catalog, clinicAddress }: BookingLabFlowProps) 
             { title: "Где", rows: [{ label: "Адрес", value: clinicAddress }] },
           ]}
           onConfirm={async () => {
+            // Запись создаётся только для вошедшего пациента (PD-01). Вышли в другой вкладке — снова к данным.
+            const current = await authSession.currentPatient();
+            if (!current) return patch({ step: "patient", phoneVerified: false });
             const result = await bookingService.createAppointment({
               target: LAB_TARGET,
               reservation,
-              patient,
+              patientId: current.id,
               analysisIds,
             });
             if (result.ok) {

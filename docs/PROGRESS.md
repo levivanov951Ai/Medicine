@@ -1,6 +1,6 @@
 # PROGRESS — СМЛаб
 
-_Обновлено: 2026-09-26_
+_Обновлено: 2026-09-27_
 
 ## Завершено
 
@@ -21,28 +21,34 @@ _Обновлено: 2026-09-26_
 - Booking Success
 - Doctor Quick Slots
 - MOCK availability / service layer
+- Standalone Auth (`/login`: телефон → код → кабинет, возврат по `?next=`)
+- Shared Auth State (один вход для записи, шапки и кабинета)
+- Booking/Auth Integration (код в записи = вход на сайт; повторно код не спрашивается)
+- Authenticated Header (desktop и мобильное меню)
+- Account Dashboard (`/account`)
+- Appointment Details (`/account/appointments/[id]`)
+- Patient Profile (`/account/profile`)
+- MOCK Appointment Persistence (записи переживают обновление, выход и повторный вход)
 - Responsive- и accessibility-проверки, lint / typecheck / build
 
 ## Текущее состояние
 
-Главная, публичные каталоги и обе записи работают на desktop и mobile.
-Запись — на MOCK: расписание, резерв и код подтверждения имитируются в браузере, CRM не подключена.
+Главная, публичные каталоги, обе записи, вход и личный кабинет работают на desktop и mobile.
+Всё на MOCK: расписание, код подтверждения, пациенты и записи хранятся в браузере, CRM не подключена.
+Защита кабинета — только клиентская демонстрация.
 Короткая сводка для новой сессии — `docs/SESSION_HANDOFF.md`.
 
-## Следующий этап — Auth + Patient Account
+## Следующий этап — Appointment Management + Secondary Pages
 
-- Standalone Login (`/login`: телефон → код)
-- Shared Auth State (общий для входа и записи)
-- Booking/Auth integration
-- Authenticated Header
-- Account Dashboard (`/account`)
-- Appointment Details
-- Patient Profile
-- MOCK Appointment Persistence (созданные записи видны в кабинете)
+- Отмена записи (Cancel appointment)
+- Перенос записи (Reschedule appointment)
+- Акции (Promotions)
+- Контакты (Contacts)
+- О клинике (About)
+- Правовые страницы — шаблоны (legal templates)
+- Комплексы анализов / Check-ups — при необходимости
 
 ## Позже
 
-- Отмена и перенос записи
-- Вторичные страницы (акции, комплексы анализов, о клинике, контакты, правовые)
 - Интеграция с CRM
 - Production hardening

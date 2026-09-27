@@ -43,8 +43,7 @@ export interface Reservation {
 
 export type ReserveResult = { ok: true; reservation: Reservation } | { ok: false; reason: "unavailable" };
 
-export type VerifyOtpResult = { ok: true } | { ok: false; reason: "invalid" };
-
+/** Имя и телефон в черновике записи. Сам пациент и вход — authService (src/services/auth). */
 export interface PatientContact {
   name: string;
   /** 10 цифр после «+7». */
@@ -54,7 +53,8 @@ export interface PatientContact {
 export interface CreateAppointmentInput {
   target: BookingTarget;
   reservation: Reservation;
-  patient: PatientContact;
+  /** Пациент, вошедший по коду (authService). Без входа запись не создаётся (PD-01). */
+  patientId: string;
   /** Для записи на анализы — id выбранных анализов. */
   analysisIds?: string[];
 }
@@ -64,10 +64,6 @@ export type CreateAppointmentResult =
   | { ok: false; reason: "expired" | "unavailable" };
 
 export interface BookingService {
-  /** Длина кода подтверждения (Booking-Doctor-*: 5 ячеек). */
-  readonly otpLength: number;
-  /** Тестовый код без настоящей отправки SMS. У реальной реализации — null. */
-  readonly testOtpCode: string | null;
   /** На сколько дней вперёд открыта запись. */
   readonly horizonDays: number;
   /** Расписание на `days` дней начиная с `from`. Ошибка загрузки — исключение. */
@@ -77,9 +73,10 @@ export interface BookingService {
   /** Временный резерв слота на время оформления. */
   reserveSlot(target: BookingTarget, slot: SlotRef): Promise<ReserveResult>;
   releaseReservation(reservationId: string): Promise<void>;
-  /** Отправка кода подтверждения номера. Возвращает, через сколько секунд можно повторить. */
-  sendOtp(phoneDigits: string): Promise<{ resendAfterSeconds: number }>;
-  verifyOtp(phoneDigits: string, code: string): Promise<VerifyOtpResult>;
+  /**
+   * Создать запись. Стоимость и адрес фиксирует сервис (не интерфейс);
+   * запись сразу появляется в кабинете пациента (appointmentService).
+   */
   createAppointment(input: CreateAppointmentInput): Promise<CreateAppointmentResult>;
 }
 

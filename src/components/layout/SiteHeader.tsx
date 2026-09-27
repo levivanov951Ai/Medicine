@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { useAuth } from "@/lib/auth-session";
 import { cn } from "@/lib/cn";
 import { isNavItemActive, mainNav } from "@/lib/navigation";
 import { routes } from "@/lib/routes";
 import type { ClinicInfo } from "@/types/clinic";
+import { AccountMenu } from "./AccountMenu";
 import { Container } from "./Container";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
@@ -28,11 +30,15 @@ interface SiteHeaderProps {
  * не сдвигает страницу. Ниже 1280px — мобильная шапка 64px с меню:
  * полная навигация по ширине туда не помещается.
  *
+ * Вход: гость видит «Войти», вошедший пациент — аватар и имя со списком
+ * «Мои записи / Профиль / Выйти» (общее состояние useAuth).
+ *
  * «Записаться» — голубая secondary-кнопка: единственный розовый primary
  * на экране остаётся за героем главной (Header-Desktop.dc.html).
  */
 export function SiteHeader({ clinic }: SiteHeaderProps) {
   const pathname = usePathname();
+  const auth = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -108,15 +114,22 @@ export function SiteHeader({ clinic }: SiteHeaderProps) {
 
           <div className="flex items-center gap-6">
             <PhoneLink phone={clinic.phone} iconSize={18} className="text-[15px] whitespace-nowrap" />
-            <Link
-              href={routes.login}
-              className="inline-flex items-center gap-1.5 rounded-(--radius-s) text-[15px] font-semibold text-(--color-text-primary) hover:text-(--color-nav-active-text)"
-            >
-              <span className="flex text-(--color-icon-accent)">
-                <Icon name="user" size={18} />
-              </span>
-              Войти
-            </Link>
+            {auth.status === "authenticated" ? (
+              <AccountMenu patient={auth.patient} />
+            ) : auth.status === "guest" ? (
+              <Link
+                href={routes.login}
+                className="inline-flex items-center gap-1.5 rounded-(--radius-s) text-[15px] font-semibold text-(--color-text-primary) hover:text-(--color-nav-active-text)"
+              >
+                <span className="flex text-(--color-icon-accent)">
+                  <Icon name="user" size={18} />
+                </span>
+                Войти
+              </Link>
+            ) : (
+              // Сессия восстанавливается — место держим, чтобы шапка не прыгала.
+              <span aria-hidden="true" className="h-8 w-16" />
+            )}
             <Button href={routes.booking} variant="secondary" size="sm">
               Записаться
             </Button>

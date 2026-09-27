@@ -13,6 +13,7 @@ import {
 } from "@/lib/booking-draft";
 import { formatLongDate, formatShortDate, isIsoDate, isTime } from "@/lib/dates";
 import { formatRub } from "@/lib/format";
+import { authSession } from "@/lib/auth-session";
 import { maskPhone } from "@/lib/phone";
 import { bookingService } from "@/services/booking";
 import type { BookingTarget } from "@/services/booking/types";
@@ -281,7 +282,10 @@ export function BookingDoctorFlow({ services, categories, doctors, clinicAddress
             { title: "Где", rows: [{ label: "Адрес", value: clinicAddress }] },
           ]}
           onConfirm={async () => {
-            const result = await bookingService.createAppointment({ target, reservation, patient });
+            // Запись создаётся только для вошедшего пациента (PD-01). Вышли в другой вкладке — снова к данным.
+            const current = await authSession.currentPatient();
+            if (!current) return patch({ step: "patient", phoneVerified: false });
+            const result = await bookingService.createAppointment({ target, reservation, patientId: current.id });
             if (result.ok) patch({ step: "done", appointmentId: result.appointmentId, reservation: undefined });
             else dropReservation(result.reason === "expired" ? "expired" : "slot-unavailable");
           }}

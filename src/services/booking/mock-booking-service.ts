@@ -5,6 +5,8 @@ import {
   type WeeklySchedule,
 } from "@/data/mock/availability";
 import { addDays, isoWeekday, minutesOf, timeOf, toIsoDate, type IsoDate } from "@/lib/dates";
+import { mockAppointmentStore } from "../appointments/mock-appointment-store";
+import { dataSource } from "../source";
 import {
   RESERVATION_MINUTES,
   type BookingService,
@@ -19,10 +21,14 @@ import {
  * который читает src/data/mock — только правила расписания.
  *
  * Что имитируется:
- * - занятые слоты — детерминированно, по правилам расписания;
- * - резерв и созданные записи — только в этой вкладке (sessionStorage);
- * - код подтверждения — фиксированный тестовый MOCK_OTP_CODE, SMS не отправляется;
+ * - занятые слоты — детерминированно, по правилам расписания,
+ *   плюс время действующих записей из общего хранилища записей;
+ * - резерв — только в этой вкладке (sessionStorage);
+ * - созданная запись попадает в хранилище записей (mock-appointment-store)
+ *   и сразу видна в личном кабинете пациента;
  * - задержка ответа — чтобы были видны состояния загрузки.
+ *
+ * Код подтверждения и вход — authService (src/services/auth), не здесь.
  *
  * Сценарии для ручной проверки (sessionStorage «smlab:mock-scenario»):
  * «availability-error» — расписание не загружается;
@@ -31,12 +37,7 @@ import {
  * «short-reservation» — резерв 20 секунд вместо 5 минут.
  */
 
-/** Тестовый код подтверждения. Не является механизмом безопасности. */
-const MOCK_OTP_CODE = "11111";
-const RESEND_AFTER_SECONDS = 45;
-
 const RESERVATIONS_KEY = "smlab:mock-reservations";
-const BOOKED_KEY = "smlab:mock-booked";
 const SCENARIO_KEY = "smlab:mock-scenario";
 
 type Scenario = "availability-error" | "taken-on-reserve" | "taken-on-confirm" | "short-reservation";
@@ -95,6 +96,15 @@ function scheduleFor(target: BookingTarget): WeeklySchedule | null {
 
 const slotKey = (target: BookingTarget, slot: SlotRef) => `${targetKey(target)}|${slot.date}|${slot.time}`;
 
+/** Время, уже занятое действующими записями. */
+function bookedSlotKeys(): Set<string> {
+  return new Set(
+    mockAppointmentStore.activeAppointments().map((item) =>
+      slotKey(item.type === "lab" ? { kind: "lab" } : { kind: "doctor", doctorId: item.doctorId, serviceId: null }, item),
+    ),
+  );
+}
+
 function nowParts() {
   const now = new Date();
   return { today: toIsoDate(now), minutes: now.getHours() * 60 + now.getMinutes() };
@@ -108,7 +118,7 @@ function buildDay(target: BookingTarget, date: IsoDate): DayAvailability {
     return { date, slots: [] };
   }
 
-  const booked = new Set(readJson<string[]>(BOOKED_KEY, []));
+  const booked = bookedSlotKeys();
   const slots = [];
   for (let minutes = minutesOf(schedule.start); minutes <= minutesOf(schedule.end); minutes += schedule.stepMinutes) {
     // Прошедшее сегодня время не показываем совсем.
@@ -125,9 +135,20 @@ function reservations(): Record<string, Reservation & { key: string }> {
   return readJson(RESERVATIONS_KEY, {});
 }
 
+/** Стоимость записи по каталогу: цена услуги у врача или сумма анализов. `null` — позиции нет в каталоге. */
+async function priceFor(target: BookingTarget, analysisIds: string[]): Promise<number | null> {
+  if (target.kind === "doctor") {
+    const doctor = await dataSource.getDoctorById(target.doctorId);
+    const offer = doctor?.services.find((item) => item.serviceId === target.serviceId);
+    return offer?.price.amount ?? null;
+  }
+  const analyses = await dataSource.getAnalyses();
+  const picked = analysisIds.map((id) => analyses.find((item) => item.id === id));
+  if (picked.length === 0 || picked.some((item) => !item)) return null;
+  return picked.reduce((sum, item) => sum + (item?.price.amount ?? 0), 0);
+}
+
 export const mockBookingService: BookingService = {
-  otpLength: MOCK_OTP_CODE.length,
-  testOtpCode: MOCK_OTP_CODE,
   horizonDays: MOCK_BOOKING_HORIZON_DAYS,
 
   async getAvailability(target, from, days) {
@@ -167,27 +188,23 @@ export const mockBookingService: BookingService = {
     writeJson(RESERVATIONS_KEY, all);
   },
 
-  async sendOtp() {
-    await delay(700);
-    return { resendAfterSeconds: RESEND_AFTER_SECONDS };
-  },
-
-  async verifyOtp(_phoneDigits, code) {
-    await delay(700);
-    return code === MOCK_OTP_CODE ? { ok: true } : { ok: false, reason: "invalid" };
-  },
-
-  async createAppointment({ target, reservation }) {
+  async createAppointment({ target, reservation, patientId, analysisIds = [] }) {
     await delay(800);
     const stored = reservations()[reservation.id];
     if (!stored || stored.expiresAt <= Date.now()) return { ok: false, reason: "expired" };
-    if (scenario() === "taken-on-confirm") {
+    const price = await priceFor(target, analysisIds);
+    if (scenario() === "taken-on-confirm" || price === null || (target.kind === "doctor" && !target.serviceId)) {
       await mockBookingService.releaseReservation(reservation.id);
       return { ok: false, reason: "unavailable" };
     }
 
     await mockBookingService.releaseReservation(reservation.id);
-    writeJson(BOOKED_KEY, [...readJson<string[]>(BOOKED_KEY, []), slotKey(target, reservation.slot)]);
-    return { ok: true, appointmentId: `apt-${Date.now().toString(36)}` };
+    const { address } = await dataSource.getClinicInfo();
+    const common = { patientId, date: reservation.slot.date, time: reservation.slot.time, price, clinicAddress: address };
+    const appointment =
+      target.kind === "doctor"
+        ? mockAppointmentStore.create({ ...common, type: "doctor", doctorId: target.doctorId, serviceId: target.serviceId! })
+        : mockAppointmentStore.create({ ...common, type: "lab", analysisIds });
+    return { ok: true, appointmentId: appointment.id };
   },
 };

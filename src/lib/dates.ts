@@ -80,3 +80,11 @@ export function formatRelativeDay(iso: IsoDate, today: IsoDate): string {
   if (iso === addDays(today, 1)) return "Завтра";
   return formatDayMonthFromIso(iso);
 }
+
+const dayMonthShort = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" });
+
+/** «24 сент, чт» — компактно, для mobile (Cabinet-*-Mobile). */
+export function formatCompactDate(iso: IsoDate): string {
+  const date = parseIsoDate(iso);
+  return `${dayMonthShort.format(date).replace(".", "")}, ${weekdayShort.format(date).replace(".", "")}`;
+}

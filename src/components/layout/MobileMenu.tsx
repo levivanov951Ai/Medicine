@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useRef, type RefObject } from "react";
+import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { useAuth } from "@/lib/auth-session";
 import { cn } from "@/lib/cn";
 import { isNavItemActive, mainNav } from "@/lib/navigation";
 import { routes } from "@/lib/routes";
 import type { ClinicInfo } from "@/types/clinic";
+import { patientLabel } from "./AccountMenu";
 import { Logo } from "./Logo";
 import { PhoneLink } from "./PhoneLink";
 
@@ -29,6 +32,7 @@ interface MobileMenuProps {
  * Прокрутка страницы под меню блокируется вручную.
  */
 export function MobileMenu({ id, open, onClose, clinic, pathname, returnFocusRef }: MobileMenuProps) {
+  const auth = useAuth();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -119,14 +123,33 @@ export function MobileMenu({ id, open, onClose, clinic, pathname, returnFocusRef
 
         <div className="flex flex-col gap-3.5 border-t border-(--color-border-decorative) p-4">
           <PhoneLink phone={clinic.phone} iconSize={20} className="min-h-11 gap-2.5 text-[16px]" />
-          <Link
-            href={routes.login}
-            onClick={close}
-            className="inline-flex min-h-11 items-center gap-2.5 self-start rounded-(--radius-s) text-[16px] font-semibold text-(--color-text-primary)"
-          >
-            <Icon name="user" size={20} />
-            Войти
-          </Link>
+          {auth.status === "authenticated" ? (
+            <Link
+              href={routes.account}
+              onClick={close}
+              className="flex min-h-11 items-center gap-3 rounded-(--radius-s) text-(--color-text-primary)"
+            >
+              <Avatar name={auth.patient.name} size="md" />
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate text-[16px] font-semibold">{patientLabel(auth.patient)}</span>
+                <span className="text-[13px] text-(--color-text-secondary)">Мои записи и профиль</span>
+              </span>
+              <span className="ml-auto flex text-(--color-icon-muted)">
+                <Icon name="chevron-right" size={18} />
+              </span>
+            </Link>
+          ) : auth.status === "guest" ? (
+            <Link
+              href={routes.login}
+              onClick={close}
+              className="inline-flex min-h-11 items-center gap-2.5 self-start rounded-(--radius-s) text-[16px] font-semibold text-(--color-text-primary)"
+            >
+              <Icon name="user" size={20} />
+              Войти
+            </Link>
+          ) : (
+            <span aria-hidden="true" className="min-h-11" />
+          )}
           <Button href={routes.booking} variant="secondary" size="md" fullWidth>
             Записаться
           </Button>

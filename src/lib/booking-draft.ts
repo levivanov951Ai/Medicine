@@ -7,6 +7,7 @@ import type { PatientContact, Reservation, SlotRef } from "@/services/booking/ty
 /**
  * Черновик записи — состояние мастера между шагами (sessionStorage, только эта вкладка).
  * Медицинских данных здесь нет: только выбранные услуга/врач/время и имя с телефоном.
+ * Вход пациента — общий authSession (src/lib/auth-session.ts), не черновик.
  *
  * `id` черновика стоит в адресе (`/booking?draft=…`): обновление страницы
  * восстанавливает черновик, а новый вход по ссылке «Записаться» начинает новую запись.
@@ -56,8 +57,6 @@ export interface LabDraft extends DraftBase {
 export const doctorDraftStore = createSessionStore<DoctorDraft>("smlab:booking:doctor");
 export const labDraftStore = createSessionStore<LabDraft>("smlab:booking:lab");
 
-/** Пациент, подтвердивший номер в этой вкладке, — не спрашиваем код повторно. */
-export const mockPatientSession = createSessionStore<PatientContact>("smlab:mock-patient");
 
 export function newDraftId(): string {
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;

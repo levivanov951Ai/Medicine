@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
+import { AppointmentsDashboard } from "@/components/features/account/AppointmentsDashboard";
+import { getAppointmentReferences } from "@/services/account";
 
 export const metadata: Metadata = { title: "Личный кабинет" };
 
-/** Временная заглушка — личный кабинет реализуется на следующем этапе. */
-export default function Page() {
-  return <PlaceholderPage title="Личный кабинет" />;
+/**
+ * «Мои записи» (PD-14): ближайшая, будущие, прошедшие и отменённые записи.
+ * Записи пациента читаются в браузере; сервер отдаёт справочник каталога для подписей.
+ */
+export default async function AccountPage() {
+  return <AppointmentsDashboard references={await getAppointmentReferences()} />;
 }

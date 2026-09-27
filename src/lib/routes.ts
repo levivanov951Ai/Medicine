@@ -35,6 +35,8 @@ export const routes = {
   about: "/about",
   contacts: "/contacts",
   login: "/login",
+  /** Вход с возвратом туда, куда пациент шёл (только внутренние адреса — см. safeReturnPath). */
+  loginWithReturn: (next: string) => `/login?next=${encodeURIComponent(next)}`,
   legal: (slug: string) => `/legal/${encodeURIComponent(slug)}`,
 
   booking: "/booking",
@@ -47,12 +49,25 @@ export const routes = {
     bookingHref({ service: serviceId, doctor: doctorId, date, time }),
   /** Выбранные анализы берутся из сохранённого выбора, в адрес не передаются. */
   bookingLab: "/booking/lab",
-  /** Личный кабинет — пока заглушка (следующий этап). */
+  /** Личный кабинет (PD-14): записи, детали записи, профиль. */
   account: "/account",
+  accountProfile: "/account/profile",
+  appointment: (id: string) => `/account/appointments/${encodeURIComponent(id)}`,
 } as const;
 
 function bookingHref(params: Record<string, string | undefined>): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
   return `/booking?${search.toString()}`;
+}
+
+/**
+ * Адрес возврата после входа (?next=). Принимается только путь внутри сайта:
+ * «/account/…», но не «//evil.example» и не «https://…» — иначе ссылка
+ * на вход могла бы увести пациента на чужой сайт.
+ */
+export function safeReturnPath(value: string | null | undefined): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return null;
+  if (value === "/login" || value.startsWith("/login?")) return null;
+  return value;
 }

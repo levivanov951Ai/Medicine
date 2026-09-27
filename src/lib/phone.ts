@@ -29,6 +29,11 @@ export function isCompletePhone(digits: string): boolean {
   return digits.length === PHONE_DIGITS;
 }
 
+/** Единая проверка номера для входа и записи. `undefined` — номер в порядке. */
+export function phoneValidationError(digits: string): string | undefined {
+  return isCompletePhone(digits) ? undefined : "Введите номер полностью — 10 цифр после +7";
+}
+
 /** «+7 (915) ***-**-67» — в сводке номер показывается частично. */
 export function maskPhone(digits: string): string {
   return `+7 (${digits.slice(0, 3)}) ***-**-${digits.slice(8, 10)}`;
