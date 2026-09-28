@@ -25,6 +25,15 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s — ${clinic.name}`,
     },
     description: "Запись к врачу и на анализы онлайн. Запись подтверждается сразу.",
+    applicationName: clinic.name,
+    // Базовый Open Graph: только проверенные сведения (display brand — PD-22).
+    // Картинки для соцсетей нет в Design v1 — не придумываем; og:title
+    // и og:description страниц соцсети берут из <title> и description.
+    openGraph: {
+      type: "website",
+      locale: "ru_RU",
+      siteName: clinic.name,
+    },
     // Staging/demo по умолчанию — сайт не индексируется (site-config.ts).
     // Страницы, которые не индексируются и в production (кабинет, запись,
     // вход, юридические заглушки), сами задают robots — этот дефолт не трогают.

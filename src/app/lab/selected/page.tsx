@@ -8,6 +8,8 @@ import { getAnalysesCatalog } from "@/services/analyses";
 export const metadata: Metadata = {
   title: "Выбранные анализы",
   description: "Список выбранных анализов, подготовка и итоговая стоимость перед записью.",
+  // Личный выбор хранится в браузере — у поисковика страница всегда пустая.
+  robots: { index: false },
 };
 
 /**

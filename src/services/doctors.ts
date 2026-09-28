@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { DayAvailability } from "./booking/types";
 import type { Category, Doctor, DoctorWithSlot, Price, Service } from "@/types/catalog";
 import { getDoctorQuickSlots, withNextSlots } from "./availability";
@@ -44,7 +45,7 @@ export async function getDoctorsCatalog(): Promise<DoctorsCatalogData> {
 }
 
 /** Страница врача. `null` — врача нет (страница отвечает 404). */
-export async function getDoctorPage(id: string): Promise<DoctorPageData | null> {
+async function loadDoctorPage(id: string): Promise<DoctorPageData | null> {
   const doctor = await dataSource.getDoctorById(id);
   if (!doctor) return null;
 
@@ -66,3 +67,10 @@ export async function getDoctorPage(id: string): Promise<DoctorPageData | null> 
     services: doctorServices,
   };
 }
+
+/**
+ * Один вызов на запрос: generateMetadata и сама страница спрашивают одно и то же.
+ * С CRM это два сетевых запроса вместо одного — React cache() склеивает их
+ * в пределах одного серверного рендера (между запросами ничего не кешируется).
+ */
+export const getDoctorPage = cache(loadDoctorPage);

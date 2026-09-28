@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { legalNav } from "@/lib/navigation";
+import { legalDocuments } from "@/data/legal";
 import { routes } from "@/lib/routes";
 import { indexingAllowed, siteUrl } from "@/lib/site-config";
 import { dataSource } from "@/services/source";
@@ -34,7 +34,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { url: abs(routes.promo), changeFrequency: "weekly", priority: 0.5 },
       { url: abs(routes.about), changeFrequency: "monthly", priority: 0.4 },
       { url: abs(routes.contacts), changeFrequency: "monthly", priority: 0.4 },
-      ...legalNav.map((item) => ({ url: abs(item.href), changeFrequency: "yearly" as const, priority: 0.2 })),
+      // Правовые страницы — только когда клиника передала текст: пока это заглушки с noindex.
+      ...legalDocuments
+        .filter((document) => document.content !== null)
+        .map((document) => ({ url: abs(routes.legal(document.slug)), changeFrequency: "yearly" as const, priority: 0.2 })),
     ] satisfies Array<{ url: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }>
   ).map((entry) => ({ ...entry, lastModified: now }));
 

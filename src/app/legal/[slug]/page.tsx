@@ -23,7 +23,8 @@ const findDocument = (slug: string) => legalDocuments.find((document) => documen
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const document = findDocument((await params).slug);
-  return { title: document?.title, robots: { index: false } };
+  // Заглушка без текста не индексируется; с текстом от клиники — обычная страница (и попадёт в sitemap).
+  return { title: document?.title, robots: document?.content ? undefined : { index: false } };
 }
 
 /**

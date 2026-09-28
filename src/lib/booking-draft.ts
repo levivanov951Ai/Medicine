@@ -76,6 +76,19 @@ export const doctorDraftStore = createSessionStore<DoctorDraft>("smlab:booking:d
 export const labDraftStore = createSessionStore<LabDraft>("smlab:booking:lab");
 export const rescheduleDraftStore = createSessionStore<RescheduleDraft>("smlab:booking:reschedule");
 
+/**
+ * Выход из аккаунта: убрать из черновиков имя и телефон, чтобы на общем
+ * устройстве следующий человек не увидел чужие данные. Выбор услуги, врача,
+ * анализов и резерв времени остаются — «Не вы? Сменить номер» в записи
+ * тоже выходит из аккаунта, и запись не должна обрываться.
+ */
+export function forgetPatientInDrafts() {
+  const strip = <T extends DraftBase>(draft: T | null): T | null =>
+    draft ? { ...draft, patient: undefined, phoneVerified: undefined } : draft;
+  doctorDraftStore.update(strip);
+  labDraftStore.update(strip);
+}
+
 export function newDraftId(): string {
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }

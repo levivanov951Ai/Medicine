@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { authService } from "@/services/auth";
+import { forgetPatientInDrafts } from "./booking-draft";
 import type { Patient } from "@/types/patient";
 
 /**
@@ -100,6 +101,8 @@ export const authSession = {
 
   async logout() {
     await authService.logout();
+    // Имя и телефон из незавершённой записи — тоже данные пациента (booking-draft.ts).
+    forgetPatientInDrafts();
     setState({ status: "guest" });
   },
 };

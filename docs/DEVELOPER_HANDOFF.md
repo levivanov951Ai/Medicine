@@ -572,7 +572,30 @@ Artifact read
 
 ---
 
-## 18. Журнал
+## 18. Production Readiness и staging — решения
+
+Реализовано 2026-09-27/28. Полная картина, чек-листы, таблица browser storage — [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md); что запросить у клиники — [`CONTENT_REQUIRED.md`](./CONTENT_REQUIRED.md).
+
+- **Окружение** — `src/lib/site-config.ts`: `NEXT_PUBLIC_SITE_ENV` (`staging` по умолчанию | `production`), `NEXT_PUBLIC_SITE_URL`. staging: meta robots `noindex`, `robots.txt` `Disallow: /`, заголовок `X-Robots-Tag`, пустой `sitemap.xml`.
+- **Защиты от запуска** — production + `DATA_SOURCE=mock` (`services/config.ts`) и production + `NEXT_PUBLIC_DEMO_MODE=true` (`site-config.ts`) останавливают сборку.
+- **Security-заголовки** — `next.config.ts`; `X-Powered-By` выключен. `X-Frame-Options: DENY` запрещает и встраивание в собственный iframe — тесты через iframe больше не работают, проверять навигацией.
+- **CSP отложена** — подробности в `PRODUCTION_READINESS.md` («Deferred CSP»). Не возвращать middleware с nonce и не ослаблять CSP ради галочки.
+- **Ошибки** — `app/error.tsx` (маршрут, «Обновить»), `app/global-error.tsx` (падение layout, собственные `<html>`/`<body>`, без общих компонентов), `app/not-found.tsx`.
+
+| Что | Было | Стало | Почему |
+|---|---|---|---|
+| Иконка сайта | `favicon.ico` шаблона create-next-app | `src/app/icon.svg` — утверждённый знак | Временный ассет шаблона. Растровые ICO / apple-touch-icon — экспорт из вектора (запрошено у клиники) |
+| Root metadata | title, description | + `applicationName`, базовый Open Graph, `metadataBase`, robots по окружению | SEO-основа без выдуманного контента |
+| `sitemap.xml` | включал правовые заглушки | только правовые страницы с текстом | заглушки `noindex` — не место в sitemap |
+| Правовые страницы | `noindex` всегда | `noindex`, пока `content = null` | станут индексируемыми, когда клиника передаст текст |
+| `/lab/selected` | индексировалась | `noindex` | выбор хранится в браузере, у поисковика страница пустая |
+| Двойные запросы | `generateMetadata` и страница вызывали сервис дважды | `React.cache()` в `getServicePage`, `getDoctorPage`, `getAnalysisPage`, `getClinicInfo` | с CRM — вдвое меньше запросов на показ |
+| Выход из аккаунта | имя и телефон оставались в черновиках записи | `forgetPatientInDrafts()` стирает их; выбор и резерв остаются | общий компьютер; «Не вы? Сменить номер» не обрывает запись |
+| Главная | dynamic | dynamic — оставлено | «ближайшее время» — живое расписание, с CRM тем более |
+
+---
+
+## 19. Журнал
 
 | Дата | Событие |
 |---|---|
@@ -587,3 +610,4 @@ Artifact read
 | 2026-09-27 | Реализованы вход, общий auth, шапка с пациентом, личный кабинет, детали записи, профиль, MOCK-хранилище записей. Решения и открытые вопросы — раздел 15 |
 | 2026-09-27 | Реализованы отмена и перенос записи, «Акции», «О клинике», «Контакты», правовые страницы, комплексные программы. Решения и открытые вопросы — раздел 16 |
 | 2026-09-27 | Подготовка к CRM: переключатель `DATA_SOURCE`, модель ошибок, обработка сбоев, настоящий 404 у страниц деталей. Раздел 17 и `CRM_INTEGRATION.md` |
+| 2026-09-28 | Production Readiness Preparation: окружения, noindex, robots/sitemap, security-заголовки, защиты от запуска на MOCK, аудиты. Раздел 18, `PRODUCTION_READINESS.md`, `CONTENT_REQUIRED.md` |

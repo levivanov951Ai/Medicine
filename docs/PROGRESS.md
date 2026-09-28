@@ -37,6 +37,7 @@ _Обновлено: 2026-09-27_
 - Legal pages (`/legal/[slug]`, тексты — после предоставления клиникой)
 - Lab Packages (`/lab/packages`, программа добавляет анализы в выбранные)
 - CRM Integration Preparation (аудит, требования и вопросы — `docs/CRM_INTEGRATION.md`; переключатель `DATA_SOURCE`; модель ошибок; настоящий 404)
+- Production Readiness Preparation (окружения staging/production, noindex, robots/sitemap, security-заголовки, защиты от запуска на MOCK, аудиты — `docs/PRODUCTION_READINESS.md`; запрос контента — `docs/CONTENT_REQUIRED.md`)
 - Responsive- и accessibility-проверки, lint / typecheck / build
 
 ## Текущее состояние
@@ -46,10 +47,18 @@ _Обновлено: 2026-09-27_
 Правила отмены и переноса — демо (PRODUCTION RULE UNKNOWN). Защита кабинета — только клиентская демонстрация.
 Короткая сводка для новой сессии — `docs/SESSION_HANDOFF.md`.
 
-## Следующий этап — CRM Integration
+## Следующий этап — Staging Deployment
 
-Начинается **только после** получения реальной документации CRM и доступа к тестовой среде (что нужно — `docs/CRM_INTEGRATION.md`, разделы 12–13).
+Выложить демо-стенд на MOCK, закрытый от индексации. Инструкция и smoke-checklist — `docs/PRODUCTION_READINESS.md`.
 
-## Позже
+## WAITING FOR (параллельно)
 
-- Production hardening
+- реальный контент клиники (`docs/CONTENT_REQUIRED.md`);
+- документация CRM и тестовый доступ;
+- решение по смс-провайдеру;
+- часовой пояс и правила отмены / переноса.
+
+## Потом
+
+- CRM Integration — после документации CRM (`docs/CRM_INTEGRATION.md`)
+- Production Launch — **BLOCKED** (блокеры — `docs/PRODUCTION_READINESS.md`)

@@ -217,6 +217,7 @@ Mapper layer: создаётся вместе с CRM-реализацией — 
 |---|---|---|---|
 | `DATA_SOURCE` | сервер и браузер (через `next.config.ts`) | нет | `mock` (по умолчанию) или `crm`. Неизвестное значение и `crm` без реализации останавливают сборку |
 | `NEXT_PUBLIC_DEMO_MODE` | браузер | нет | подпись «Демо-код» (PD-26), удалить с реальной авторизацией |
+| `NEXT_PUBLIC_SITE_ENV`, `NEXT_PUBLIC_SITE_URL` | сервер и браузер | нет | окружение и домен — см. `PRODUCTION_READINESS.md`. production требует `DATA_SOURCE=crm` |
 | `CRM_BASE_URL`, `CRM_API_KEY` | только сервер | **да** | заготовка; точные названия — по документации CRM |
 
 Режимы: разработка и демо — `DATA_SOURCE=mock`; production — `DATA_SOURCE=crm` после появления CRM-реализаций всех четырёх сервисов.

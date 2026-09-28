@@ -1,10 +1,10 @@
 # SESSION HANDOFF — СМЛаб
 
-_2026-09-27. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–17); CRM — `docs/CRM_INTEGRATION.md`._
+_2026-09-28. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–18); CRM — `docs/CRM_INTEGRATION.md`; запуск — `docs/PRODUCTION_READINESS.md`; запрос контента у клиники — `docs/CONTENT_REQUIRED.md`._
 
 ## Current state
 
-Весь frontend MVP реализован (MOCK-данные в браузере): главная, каталоги, запись, вход, кабинет с отменой и переносом, акции, «О клинике», «Контакты», правовые страницы, комплексные программы.
+Весь frontend MVP реализован (MOCK-данные в браузере): главная, каталоги, запись, вход, кабинет с отменой и переносом, акции, «О клинике», «Контакты», правовые страницы, комплексные программы. Готов к staging; production — BLOCKED.
 
 ## Current stack
 
@@ -48,9 +48,12 @@ Next.js App Router · TypeScript · Tailwind CSS v4 · React · канониче
 
 ## Next task
 
-CRM Integration — **только после** получения документации CRM и тестового доступа. Что запросить и в каком порядке подключать — `docs/CRM_INTEGRATION.md` (разделы 12–13). Без документации не писать CRM-клиент, маршруты и DTO.
+Staging Deployment: выложить демо-стенд по `docs/PRODUCTION_READINESS.md` (Deployment prerequisites, Staging checklist). Параллельно ждём контент клиники, документацию CRM, смс-провайдера, часовой пояс и правила. CRM Integration — только с документацией; Production Launch — BLOCKED.
 
 ## Known production blockers
+
+Полный список — `docs/PRODUCTION_READINESS.md`.
+
 
 - Часовой пояс клиники — UNKNOWN.
 - Реальный CRM / API — UNKNOWN.
