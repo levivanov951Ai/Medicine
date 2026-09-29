@@ -87,6 +87,9 @@ export function Search({
         <label htmlFor={inputId} className="sr-only">
           {label}
         </label>
+        {/* Фокус показывает рамка поля (focus-within выше). Глобальный :focus-visible
+            из globals.css вне слоёв и перебивает обычный outline-none, а у текстовых
+            полей срабатывает и при клике мышью — отсюда `!`. */}
         <input
           ref={inputRef}
           id={inputId}
@@ -97,7 +100,7 @@ export function Search({
           placeholder={placeholder}
           autoComplete="off"
           enterKeyHint="search"
-          className="h-full min-w-0 flex-1 bg-transparent text-(--color-text-primary) outline-none [&::-webkit-search-cancel-button]:appearance-none"
+          className="h-full min-w-0 flex-1 bg-transparent text-(--color-text-primary) outline-none! [&::-webkit-search-cancel-button]:appearance-none"
         />
         {value && (
           <button
