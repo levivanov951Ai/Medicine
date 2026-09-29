@@ -40,7 +40,8 @@ export function Input({ label, hint, error, disabled, id, className, ...rest }: 
         aria-invalid={error ? true : undefined}
         aria-describedby={[errorId, hintId].filter(Boolean).join(" ") || undefined}
         className={cn(
-          "h-12 w-full rounded-(--radius-m) border-[1.5px] px-4 text-[16px] outline-none",
+          // Фокус — рамка и ореол ниже; `!` перебивает глобальный :focus-visible (см. Search.tsx).
+          "h-12 w-full rounded-(--radius-m) border-[1.5px] px-4 text-[16px] outline-none!",
           "bg-(--color-surface-card) text-(--color-text-primary)",
           "focus-visible:border-(--color-focus-ring) focus-visible:shadow-[0_0_0_3px_var(--color-focus-halo)]",
           error ? "border-(--color-border-error)" : "border-(--color-control-border)",

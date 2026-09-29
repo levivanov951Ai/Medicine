@@ -60,6 +60,7 @@ export function PhoneInput({
           +7
         </span>
         <span aria-hidden="true" className="h-5 w-px bg-(--color-border-decorative)" />
+        {/* Фокус — рамка поля (focus-within выше); `!` перебивает глобальный :focus-visible (см. Search.tsx). */}
         <input
           id={inputId}
           type="tel"
@@ -77,7 +78,7 @@ export function PhoneInput({
             const deleted = event.target.value.length < formatPhoneDigits(digits).length;
             onDigitsChange(deleted && next === digits ? digits.slice(0, -1) : next);
           }}
-          className="h-full min-w-0 flex-1 bg-transparent tracking-[.02em] text-(--color-text-primary) outline-none read-only:cursor-default"
+          className="h-full min-w-0 flex-1 bg-transparent tracking-[.02em] text-(--color-text-primary) outline-none! read-only:cursor-default"
         />
       </div>
       {error && (

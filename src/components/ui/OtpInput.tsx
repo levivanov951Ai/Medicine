@@ -83,7 +83,8 @@ export function OtpInput({ length, value, onChange, state, labelId, describedBy,
           onPaste={(event) => onPaste(event, index)}
           onFocus={(event) => event.target.select()}
           className={cn(
-            "h-[52px] w-11 rounded-(--radius-m) border-[1.5px] bg-(--color-surface-card) text-center text-[20px] font-semibold text-(--color-text-primary) tabular-nums outline-none md:h-14 md:w-12",
+            // Фокус — рамка и ореол ниже; `!` перебивает глобальный :focus-visible (см. Search.tsx).
+            "h-[52px] w-11 rounded-(--radius-m) border-[1.5px] bg-(--color-surface-card) text-center text-[20px] font-semibold text-(--color-text-primary) tabular-nums outline-none! md:h-14 md:w-12",
             "focus:border-(--color-focus-ring) focus:shadow-[0_0_0_3px_var(--color-focus-halo)]",
             state === "idle" && "border-(--color-control-border)",
             state === "error" && "border-(--color-border-error)",
