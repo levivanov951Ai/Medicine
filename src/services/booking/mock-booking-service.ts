@@ -4,7 +4,8 @@ import {
   mockLabSchedule,
   type WeeklySchedule,
 } from "@/data/mock/availability";
-import { addDays, isoWeekday, minutesOf, timeOf, toIsoDate, type IsoDate } from "@/lib/dates";
+import { clinicNow } from "@/lib/clinic-time";
+import { addDays, isoWeekday, minutesOf, timeOf, type IsoDate } from "@/lib/dates";
 import { mockAppointmentStore } from "../appointments/mock-appointment-store";
 import { dataSource } from "../source";
 import {
@@ -105,14 +106,10 @@ function bookedSlotKeys(): Set<string> {
   );
 }
 
-function nowParts() {
-  const now = new Date();
-  return { today: toIsoDate(now), minutes: now.getHours() * 60 + now.getMinutes() };
-}
-
 function buildDay(target: BookingTarget, date: IsoDate): DayAvailability {
   const schedule = scheduleFor(target);
-  const { today, minutes: nowMinutes } = nowParts();
+  // MOCK-расписание («09:00–18:20») — время клиники (PD-30).
+  const { date: today, minutes: nowMinutes } = clinicNow();
   const horizonEnd = addDays(today, MOCK_BOOKING_HORIZON_DAYS - 1);
   if (!schedule || date < today || date > horizonEnd || !schedule.weekdays.includes(isoWeekday(date))) {
     return { date, slots: [] };

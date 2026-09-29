@@ -1,5 +1,6 @@
 import { TimeSlot } from "@/components/ui/TimeSlot";
-import { formatDayMonthFromIso, formatLongDate, formatRelativeDay, toIsoDate } from "@/lib/dates";
+import { clinicToday } from "@/lib/clinic-time";
+import { formatDayMonthFromIso, formatLongDate, formatRelativeDay } from "@/lib/dates";
 import { routes } from "@/lib/routes";
 import type { DayAvailability } from "@/services/booking/types";
 
@@ -27,7 +28,7 @@ function dayTitle(date: string, today: string) {
  */
 export function DoctorQuickSlots({ doctorId, days }: DoctorQuickSlotsProps) {
   if (days.length === 0) return null;
-  const today = toIsoDate(new Date());
+  const today = clinicToday();
 
   return (
     <section aria-labelledby="quick-slots-title" className="pb-8 md:pb-14">

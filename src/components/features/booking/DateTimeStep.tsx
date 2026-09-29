@@ -6,7 +6,8 @@ import { Calendar, type CalendarDayStatus } from "@/components/ui/Calendar";
 import { Icon } from "@/components/ui/Icon";
 import { EmptyState, Notice } from "@/components/ui/StateBlocks";
 import { TimeSlot } from "@/components/ui/TimeSlot";
-import { addDays, formatDayMonthFromIso, formatLongDate, minutesOf, toIsoDate, type IsoDate } from "@/lib/dates";
+import { clinicToday } from "@/lib/clinic-time";
+import { addDays, formatDayMonthFromIso, formatLongDate, minutesOf, type IsoDate } from "@/lib/dates";
 import { bookingService } from "@/services/booking";
 import type { BookingTarget, DayAvailability, Reservation, SlotRef } from "@/services/booking/types";
 import type { BookingNotice } from "@/lib/booking-draft";
@@ -53,7 +54,7 @@ export function DateTimeStep({
   onReserve,
   onContinue,
 }: DateTimeStepProps) {
-  const [today] = useState(() => toIsoDate(new Date()));
+  const [today] = useState(() => clinicToday());
   const maxDate = addDays(today, bookingService.horizonDays - 1);
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);

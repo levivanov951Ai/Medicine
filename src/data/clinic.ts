@@ -12,4 +12,5 @@ export const clinic: ClinicInfo = {
   address: "Западный обход, 42к2",
   phone: null,
   workingHours: null,
+  timezone: "Europe/Moscow",
 };

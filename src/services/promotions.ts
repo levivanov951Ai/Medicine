@@ -1,4 +1,4 @@
-import { toIsoDate } from "@/lib/dates";
+import { clinicToday } from "@/lib/clinic-time";
 import { routes } from "@/lib/routes";
 import type { Promotion, PromotionTarget } from "@/types/catalog";
 import { dataSource } from "./source";
@@ -21,10 +21,10 @@ async function targetHref(target: PromotionTarget): Promise<string | null> {
 /**
  * Действующие акции — для главной и страницы «Акции».
  * Закончившиеся (дата окончания раньше сегодняшней) не показываются.
- * «Сегодня» — по часам сервера: часовой пояс клиники UNKNOWN.
+ * «Сегодня» — по календарю клиники (PD-30).
  */
 export async function getActivePromotions(): Promise<PromotionItem[]> {
-  const today = toIsoDate(new Date());
+  const today = clinicToday();
   const promotions = (await dataSource.getPromotions()).filter(
     (promotion) => promotion.validUntil === null || promotion.validUntil >= today,
   );

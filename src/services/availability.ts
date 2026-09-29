@@ -1,4 +1,5 @@
-import { formatRelativeDay, toIsoDate } from "@/lib/dates";
+import { clinicToday } from "@/lib/clinic-time";
+import { formatRelativeDay } from "@/lib/dates";
 import type { BookingPreview, Doctor, DoctorWithSlot } from "@/types/catalog";
 import { bookingService } from "./booking";
 import type { DayAvailability } from "./booking/types";
@@ -15,7 +16,7 @@ import type { DayAvailability } from "./booking/types";
 
 /** «Сегодня, 14:20» — ближайший свободный слот врача или null. */
 export async function getNextSlotLabel(doctorId: string): Promise<string | null> {
-  const today = toIsoDate(new Date());
+  const today = clinicToday();
   const [day] = await bookingService.getUpcomingDays({ kind: "doctor", doctorId, serviceId: null }, today, 1);
   const slot = day?.slots.find((item) => item.available);
   return day && slot ? `${formatRelativeDay(day.date, today)}, ${slot.time}` : null;
@@ -31,14 +32,14 @@ export async function withNextSlots(doctors: Doctor[]): Promise<DoctorWithSlot[]
 export async function getDoctorQuickSlots(doctorId: string, days = 2): Promise<DayAvailability[]> {
   return bookingService.getUpcomingDays(
     { kind: "doctor", doctorId, serviceId: null },
-    toIsoDate(new Date()),
+    clinicToday(),
     days,
   );
 }
 
 /** Превью записи в первом экране главной: три ближайших свободных слота врача. */
 export async function getBookingPreview(doctor: Doctor): Promise<BookingPreview | null> {
-  const today = toIsoDate(new Date());
+  const today = clinicToday();
   const [day] = await getDoctorQuickSlots(doctor.id, 1);
   const slots = day?.slots.filter((slot) => slot.available).slice(0, 3).map((slot) => slot.time) ?? [];
   if (!day || slots.length === 0) return null;

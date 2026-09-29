@@ -4,11 +4,11 @@ import { useRef, useState, type KeyboardEvent } from "react";
 import { cn } from "@/lib/cn";
 import {
   addDays,
+  addMonths,
+  daysInMonth,
   formatDayMonthFromIso,
   isoWeekday,
   MONTHS,
-  parseIsoDate,
-  toIsoDate,
   WEEKDAYS_SHORT,
   type IsoDate,
 } from "@/lib/dates";
@@ -42,18 +42,13 @@ export function Calendar({ today, maxDate, selected, statusOf, onSelect, label }
   const [focusDate, setFocusDate] = useState<IsoDate>(selected ?? today);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const first = parseIsoDate(`${month}-01`);
-  const firstIso = toIsoDate(first);
-  const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
-  const days = Array.from({ length: daysInMonth }, (_, index) => addDays(firstIso, index));
+  const firstIso = `${month}-01`;
+  const days = Array.from({ length: daysInMonth(month) }, (_, index) => addDays(firstIso, index));
   const leading = isoWeekday(firstIso) - 1;
 
   const canPrev = month > monthKey(today);
   const canNext = month < monthKey(maxDate);
-  const shiftMonth = (delta: number) => {
-    const next = new Date(first.getFullYear(), first.getMonth() + delta, 1);
-    setMonth(monthKey(toIsoDate(next)));
-  };
+  const shiftMonth = (delta: number) => setMonth(addMonths(month, delta));
 
   // В фокусной последовательности — один день: выбранный или первый выбираемый в месяце.
   const selectable = (date: IsoDate) => statusOf(date) !== "outside";

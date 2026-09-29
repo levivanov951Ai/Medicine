@@ -1,10 +1,12 @@
 # SESSION HANDOFF — СМЛаб
 
-_2026-09-28. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–18); CRM — `docs/CRM_INTEGRATION.md`; запуск — `docs/PRODUCTION_READINESS.md`; запрос контента у клиники — `docs/CONTENT_REQUIRED.md`._
+_2026-09-29. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–18); CRM — `docs/CRM_INTEGRATION.md`; запуск — `docs/PRODUCTION_READINESS.md`; staging — `docs/STAGING.md`; запрос контента у клиники — `docs/CONTENT_REQUIRED.md`._
 
 ## Current state
 
-Весь frontend MVP реализован (MOCK-данные в браузере): главная, каталоги, запись, вход, кабинет с отменой и переносом, акции, «О клинике», «Контакты», правовые страницы, комплексные программы. Готов к staging; production — BLOCKED.
+Весь frontend MVP реализован (MOCK-данные в браузере): главная, каталоги, запись, вход, кабинет с отменой и переносом, акции, «О клинике», «Контакты», правовые страницы, комплексные программы.
+
+**STAGING READY:** https://smlab-staging.vercel.app (Vercel `lieon/smlab-staging`, MOCK, noindex, демо-код `11111`). Выкладка — вручную из CLI, git к Vercel не подключён (`docs/STAGING.md`). Production — BLOCKED.
 
 ## Current stack
 
@@ -44,18 +46,18 @@ Next.js App Router · TypeScript · Tailwind CSS v4 · React · канониче
 - **Selected analyses** — `src/lib/selected-analyses.ts` (localStorage). Комплексная программа (`LabPackage`, только `analysisIds`) добавляет в него свой состав без дублей.
 - **Акции** — `src/services/promotions.ts`: действующие, со ссылкой на услугу / анализ / программу. **Правовые документы** — `src/data/legal.ts`. **Карта** — `MapPlaceholder`.
 - **Переключение MOCK → CRM** — `DATA_SOURCE=mock|crm` (`src/services/config.ts`, `selectImplementation`); `crm` без реализации останавливает сборку.
+- **Время клиники** — `Europe/Moscow` (PD-30) в `clinic.timezone`; «сейчас» — только через `clinicNow()` / `clinicToday()` (`src/lib/clinic-time.ts`), не `new Date()` с локальными геттерами. `dates.ts` — календарная арифметика без привязки к поясу.
 - **Ошибки** — `ServiceError` + `serviceErrorMessage` (`src/services/errors.ts`); бизнес-исходы — `{ ok: false, reason }`.
 
 ## Next task
 
-Staging Deployment: выложить демо-стенд по `docs/PRODUCTION_READINESS.md` (Deployment prerequisites, Staging checklist). Параллельно ждём контент клиники, документацию CRM, смс-провайдера, часовой пояс и правила. CRM Integration — только с документацией; Production Launch — BLOCKED.
+Обратная связь заказчика по staging. Параллельно ждём контент клиники, документацию и sandbox CRM, смс-провайдера, правила отмены/переноса, юридические документы и домен. CRM Integration — только с документацией; Production Launch — BLOCKED.
 
 ## Known production blockers
 
 Полный список — `docs/PRODUCTION_READINESS.md`.
 
 
-- Часовой пояс клиники — UNKNOWN.
 - Реальный CRM / API — UNKNOWN.
 - Реальный OTP/SMS-провайдер — UNKNOWN.
 - Серверная сессия и защита кабинета — нет (сейчас всё в браузере).

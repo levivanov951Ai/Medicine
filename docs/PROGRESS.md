@@ -1,6 +1,8 @@
 # PROGRESS — СМЛаб
 
-_Обновлено: 2026-09-27_
+_Обновлено: 2026-09-29_
+
+**Статус: STAGING READY** — https://smlab-staging.vercel.app · Production — **BLOCKED**
 
 ## Завершено
 
@@ -38,6 +40,8 @@ _Обновлено: 2026-09-27_
 - Lab Packages (`/lab/packages`, программа добавляет анализы в выбранные)
 - CRM Integration Preparation (аудит, требования и вопросы — `docs/CRM_INTEGRATION.md`; переключатель `DATA_SOURCE`; модель ошибок; настоящий 404)
 - Production Readiness Preparation (окружения staging/production, noindex, robots/sitemap, security-заголовки, защиты от запуска на MOCK, аудиты — `docs/PRODUCTION_READINESS.md`; запрос контента — `docs/CONTENT_REQUIRED.md`)
+- Staging Deployment (Vercel `smlab-staging`, MOCK, noindex, демо-код; растровые иконки; smoke-check по публичному адресу пройден — `docs/STAGING.md`)
+- Clinic Timezone (PD-30: `Europe/Moscow`; время клиники на сервере и в браузере)
 - Responsive- и accessibility-проверки, lint / typecheck / build
 
 ## Текущее состояние
@@ -47,16 +51,19 @@ _Обновлено: 2026-09-27_
 Правила отмены и переноса — демо (PRODUCTION RULE UNKNOWN). Защита кабинета — только клиентская демонстрация.
 Короткая сводка для новой сессии — `docs/SESSION_HANDOFF.md`.
 
-## Следующий этап — Staging Deployment
+## Следующий шаг
 
-Выложить демо-стенд на MOCK, закрытый от индексации. Инструкция и smoke-checklist — `docs/PRODUCTION_READINESS.md`.
+Показать стенд заказчику и собрать обратную связь. Новые функции — только по ней.
 
-## WAITING FOR (параллельно)
+## WAITING FOR
 
 - реальный контент клиники (`docs/CONTENT_REQUIRED.md`);
-- документация CRM и тестовый доступ;
+- документация CRM;
+- тестовый доступ к CRM (sandbox);
 - решение по смс-провайдеру;
-- часовой пояс и правила отмены / переноса.
+- правила отмены и переноса для production;
+- юридические документы;
+- домен для production.
 
 ## Потом
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { clinicToday } from "@/lib/clinic-time";
 import { legalNav, mainNav } from "@/lib/navigation";
 import { PLACEHOLDER } from "@/lib/placeholders";
 import type { ClinicInfo } from "@/types/clinic";
@@ -19,7 +20,7 @@ const DISCLAIMER = "Сайт не заменяет очную консульта
  * Mobile: вертикальный стек, ссылки с областью нажатия 44px.
  */
 export function SiteFooter({ clinic }: SiteFooterProps) {
-  const year = new Date().getFullYear();
+  const year = clinicToday().slice(0, 4);
   const phone = clinic.phone ?? PLACEHOLDER.phone;
   const hours = clinic.workingHours ?? PLACEHOLDER.workingHours;
   const copyright = `© ${year} ${clinic.name}. Все права защищены.`;
