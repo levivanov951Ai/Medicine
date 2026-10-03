@@ -1,12 +1,14 @@
 # SESSION HANDOFF — СМЛаб
 
-_2026-09-29. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–18); CRM — `docs/CRM_INTEGRATION.md`; запуск — `docs/PRODUCTION_READINESS.md`; staging — `docs/STAGING.md`; запрос контента у клиники — `docs/CONTENT_REQUIRED.md`._
+_2026-10-03. Правила работы — `CLAUDE.md`; прогресс — `docs/PROGRESS.md`; решения — `PROJECT_CONTEXT.md` и `docs/DEVELOPER_HANDOFF.md` (разделы 12–18); CRM — `docs/CRM_INTEGRATION.md` и аудит `docs/CRM_AUDIT.md`; запуск — `docs/PRODUCTION_READINESS.md`; staging — `docs/STAGING.md`; запрос контента у клиники — `docs/CONTENT_REQUIRED.md`._
 
 ## Current state
 
 Весь frontend MVP реализован (MOCK-данные в браузере): главная, каталоги, запись, вход, кабинет с отменой и переносом, акции, «О клинике», «Контакты», правовые страницы, комплексные программы.
 
 **STAGING READY:** https://smlab-staging.vercel.app (Vercel `lieon/smlab-staging`, MOCK, noindex, демо-код `11111`). Выкладка — вручную из CLI, git к Vercel не подключён (`docs/STAGING.md`). Production — BLOCKED.
+
+**CRM AUDIT — COMPLETED · CRM INTEGRATION — BLOCKED.** CRM клиники — «МедЦентр» (Python / FastAPI / Jinja2 / SQLite, локальная сеть). Внешнего API нет, критичные проблемы безопасности, в присланной копии — реальные ПДн. Копия CRM лежит **вне репозитория**; CRM не запускать, данные в проект не копировать. Блокеры — `docs/CRM_INTEGRATION.md`, раздел 0.
 
 ## Current stack
 
@@ -51,14 +53,14 @@ Next.js App Router · TypeScript · Tailwind CSS v4 · React · канониче
 
 ## Next task
 
-Обратная связь заказчика по staging. Параллельно ждём контент клиники, документацию и sandbox CRM, смс-провайдера, правила отмены/переноса, юридические документы и домен. CRM Integration — только с документацией; Production Launch — BLOCKED.
+Обратная связь заказчика по staging. Параллельно ждём контент клиники; по CRM — ответы владельца, контакт разработчика, согласие на доработку, обезличенную тестовую базу и план API; смс-провайдера, правила отмены/переноса, юридические документы и домен. CRM Integration — BLOCKED; Production Launch — BLOCKED.
 
 ## Known production blockers
 
 Полный список — `docs/PRODUCTION_READINESS.md`.
 
 
-- Реальный CRM / API — UNKNOWN.
+- CRM «МедЦентр» без внешнего API и с проблемами безопасности (`docs/CRM_SECURITY_REMEDIATION.md`).
 - Реальный OTP/SMS-провайдер — UNKNOWN.
 - Серверная сессия и защита кабинета — нет (сейчас всё в браузере).
 - Настоящая блокировка слотов требует backend / CRM.

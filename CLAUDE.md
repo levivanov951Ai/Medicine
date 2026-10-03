@@ -12,6 +12,7 @@
 | Визуальный source of truth | Финальный Claude Design (Design v1) |
 | Решения по доступности и контрасту | [`docs/CONTRAST_AUDIT.md`](docs/CONTRAST_AUDIT.md) |
 | Подготовка к CRM: требования, вопросы, порядок | [`docs/CRM_INTEGRATION.md`](docs/CRM_INTEGRATION.md) |
+| CRM «МедЦентр»: аудит, требования к API, план безопасности | [`docs/CRM_AUDIT.md`](docs/CRM_AUDIT.md), [`docs/CRM_API_REQUIREMENTS.md`](docs/CRM_API_REQUIREMENTS.md), [`docs/CRM_SECURITY_REMEDIATION.md`](docs/CRM_SECURITY_REMEDIATION.md) |
 | Окружения, staging, блокеры запуска, чек-листы | [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) |
 | Staging-стенд: адрес, Vercel, выкладка, smoke-check | [`docs/STAGING.md`](docs/STAGING.md) |
 | Что запросить у клиники (для владельца, без техники) | [`docs/CONTENT_REQUIRED.md`](docs/CONTENT_REQUIRED.md) |
@@ -27,7 +28,7 @@ Next.js (App Router) · TypeScript · React · Tailwind CSS v4 · Inter (`next/f
 - Переиспользуемые компоненты: `src/components/ui`, `layout`, `features`.
 - MOCK-данные отдельно от JSX: `src/data/mock/`. Факты о клинике: `src/data/clinic.ts`.
 - Поток данных: **UI → `src/services/*` → реализация по `DATA_SOURCE`** (`mock` | `crm`, `src/services/config.ts`). Четыре сервиса: `dataSource`, `bookingService`, `authService`, `appointmentService`.
-- CRM подключается позже. **Не придумывать API и схему CRM**, не создавать backend/БД. Единственный источник о CRM — её реальная документация (см. `docs/CRM_INTEGRATION.md`).
+- CRM подключается позже. **Не придумывать API и схему CRM**, не создавать backend/БД. CRM клиники — «МедЦентр» (аудит — `docs/CRM_AUDIT.md`); API в ней нет, интеграция BLOCKED. Копию CRM не запускать, реальные данные пациентов в проект не копировать и не коммитить.
 - Сбои источника данных — `ServiceError` (`src/services/errors.ts`), бизнес-исходы — `{ ok: false, reason }`. Сырые ответы CRM в компоненты не передавать.
 - Секреты — только серверные переменные окружения, никогда `NEXT_PUBLIC_*`.
 - Окружение — `NEXT_PUBLIC_SITE_ENV` (`src/lib/site-config.ts`): по умолчанию staging, сайт закрыт от индексации. Не ослаблять защиты от запуска production на MOCK или с демо-кодом. CSP отложена — не возвращать middleware с nonce и не ставить `'unsafe-inline'` ради галочки.
